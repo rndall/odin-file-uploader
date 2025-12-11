@@ -4,8 +4,11 @@ import { fileURLToPath } from "node:url"
 import express, { static as static_, urlencoded } from "express"
 import passport from "passport"
 import configurePassport from "./config/passport.js"
+import currentUser from "./middlewares/current-user.js"
 import errorHandler from "./middlewares/error-handler.js"
 import sessionMiddleware from "./middlewares/session.js"
+
+import authRouter from "./routes/auth.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -21,7 +24,9 @@ configurePassport()
 app.use(passport.session())
 app.use(urlencoded({ extended: false }))
 
-app.get("/", (_req, res) => res.render("index"))
+app.use(currentUser)
+
+app.use("/", authRouter)
 
 const assetsPath = join(__dirname, "public")
 app.use(static_(assetsPath))
