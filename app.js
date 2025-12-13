@@ -27,8 +27,8 @@ app.use(urlencoded({ extended: false }))
 
 app.use(currentUser)
 
-app.use("/", indexRouter)
 app.use("/", authRouter)
+app.use("/", indexRouter)
 
 const assetsPath = join(__dirname, "public")
 app.use(static_(assetsPath))
