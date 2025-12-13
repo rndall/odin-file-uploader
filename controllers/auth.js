@@ -25,7 +25,7 @@ async function signUpPost(req, res, next) {
 }
 
 async function loginGet(_req, res) {
-	res.render("index")
+	res.render("login-form")
 }
 
 async function loginPost(req, res, next) {

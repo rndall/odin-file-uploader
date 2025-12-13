@@ -9,7 +9,7 @@ import {
 
 const router = Router()
 
-router.get("/", loginGet)
+router.get("/log-in", loginGet)
 router.post("/log-in", loginPost)
 router.get("/sign-up", signUpGet)
 router.post("/sign-up", signUpPost)
