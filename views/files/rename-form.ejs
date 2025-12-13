@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+  </head>
+
+  <body>
+    <h1>Rename</h1>
+    <form action="/<%= file.id %>/rename" method="POST">
+      <input
+        id="name"
+        name="name"
+        value="<%= file.name %>"
+        type="text"
+        autofocus
+        required
+      />
+      <button type="submit">OK</button>
+    </form>
+  </body>
+  
+  <script>
+    const nameInput = document.querySelector('#name')
+    const val = nameInput.value || '';
+    const dot = val.lastIndexOf('.');
+    const end = dot > 0 ? dot : val.length;
+    setTimeout(() => nameInput.setSelectionRange(0, end), 0);
+  </script>
+</html>

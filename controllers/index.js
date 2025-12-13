@@ -52,4 +52,55 @@ const createFilePost = [
 	},
 ]
 
-export { getIndex, createFilePost }
+async function deleteFile(req, res, next) {
+	const { id } = req.params
+
+	if (!id) {
+		throw new CustomNotFoundError("File not found!")
+	}
+
+	try {
+		await prisma.file.delete({ where: { id } })
+		res.redirect("/")
+	} catch (err) {
+		next(err)
+	}
+}
+
+async function renameFileGet(req, res, next) {
+	const { id } = req.params
+
+	if (!id) {
+		throw new CustomNotFoundError("File not found!")
+	}
+
+	try {
+		const file = await prisma.file.findUnique({ where: { id } })
+		res.render("files/rename-form", {
+			file: { id: file.id, name: file.name },
+		})
+	} catch (err) {
+		next(err)
+	}
+}
+
+async function renameFilePost(req, res, next) {
+	const { id } = req.params
+	const { name } = req.body
+
+	if (!id) {
+		throw new CustomNotFoundError("File not found!")
+	}
+
+	try {
+		await prisma.file.update({
+			where: { id },
+			data: { name },
+		})
+		res.redirect("/")
+	} catch (err) {
+		next(err)
+	}
+}
+
+export { getIndex, createFilePost, deleteFile, renameFileGet, renameFilePost }

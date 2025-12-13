@@ -2,4 +2,10 @@
   <%= file.name %>
   <%= file.dateModified %>
   <%= file.size %>
+  
+  <a href="/<%= file.id %>/rename">Rename</a>
+
+  <form action="/<%= file.id %>/delete" method="POST">
+    <button type="submit">Delete</button>
+  </form>
 </li>
