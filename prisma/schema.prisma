@@ -21,18 +21,22 @@ model Session {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
+  id           String @id @default(uuid())
+  username     String @unique
+  passwordHash String
 
   files File[]
 }
 
 model File {
-  id        Int      @id @default(autoincrement())
-  name      String
-  size      Int
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  id       String @id @default(uuid())
+  name     String
+  size     Int
+  mimeType String
+  path     String
+
+  createdAt  DateTime @default(now())
+  modifiedAt DateTime @updatedAt
+  owner      User     @relation(fields: [ownerId], references: [id])
+  ownerId    String
 }

@@ -7,12 +7,14 @@ async function signUpGet(_req, res) {
 }
 
 async function signUpPost(req, res, next) {
+	const { username, password } = req.body
+
 	try {
-		const hashedPassword = await hash(req.body.password, 10)
+		const passwordHash = await hash(password, 10)
 		await prisma.user.create({
 			data: {
-				username: req.body.username,
-				password: hashedPassword,
+				username,
+				passwordHash,
 			},
 		})
 		res.redirect("/")

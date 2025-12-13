@@ -15,7 +15,7 @@ export default function configurePassport() {
 					return done(null, false, { message: "Incorrect username" })
 				}
 
-				const match = await compare(password, user.password)
+				const match = await compare(password, user.passwordHash)
 				if (!match) {
 					return done(null, false, { message: "Incorrect password" })
 				}
