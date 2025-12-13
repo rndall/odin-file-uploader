@@ -9,6 +9,7 @@ import errorHandler from "./middlewares/error-handler.js"
 import sessionMiddleware from "./middlewares/session.js"
 
 import authRouter from "./routes/auth.js"
+import indexRouter from "./routes/index.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -26,6 +27,7 @@ app.use(urlencoded({ extended: false }))
 
 app.use(currentUser)
 
+app.use("/", indexRouter)
 app.use("/", authRouter)
 
 const assetsPath = join(__dirname, "public")
