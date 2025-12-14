@@ -33,9 +33,11 @@ async function deleteFile(req, res, next) {
 	}
 
 	try {
-		const file = await prisma.file.delete({ where: { id } })
-		await unlink(file.path)
-		res.redirect("/")
+		const deletedFile = await prisma.file.delete({ where: { id } })
+		await unlink(deletedFile.path)
+		const { folderId } = deletedFile
+		const path = folderId ? `/folders/${folderId}` : "/"
+		res.redirect(path)
 	} catch (err) {
 		next(err)
 	}
@@ -70,11 +72,13 @@ async function renameFilePost(req, res, next) {
 	}
 
 	try {
-		await prisma.file.update({
+		const updatedFile = await prisma.file.update({
 			where: { id },
 			data: { name },
 		})
-		res.redirect("/")
+		const { folderId } = updatedFile
+		const path = folderId ? `/folders/${folderId}` : "/"
+		res.redirect(path)
 	} catch (err) {
 		next(err)
 	}

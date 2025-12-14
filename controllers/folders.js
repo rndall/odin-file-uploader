@@ -57,6 +57,7 @@ async function renameFolderGet(req, res, next) {
 
 	try {
 		const folder = await prisma.folder.findUnique({ where: { id } })
+		console.log(folder)
 		res.render("form", {
 			title: "Rename Folder",
 			heading: "Rename",
@@ -77,11 +78,13 @@ async function renameFolderPost(req, res, next) {
 	}
 
 	try {
-		await prisma.folder.update({
+		const updatedFolder = await prisma.folder.update({
 			where: { id },
 			data: { name },
 		})
-		res.redirect("/")
+		const { parentId } = updatedFolder
+		const path = parentId ? `/folders/${parentId}` : "/"
+		res.redirect(path)
 	} catch (err) {
 		next(err)
 	}
