@@ -17,6 +17,9 @@
         autofocus
         required
       />
+      <a id="cancel" href="/"> 
+        Cancel
+      </a>
       <button type="submit">
         <%= submitBtn %>
       </button>
@@ -24,10 +27,23 @@
   </body>
   
   <script>
-    const nameInput = document.querySelector('#name')
-    const val = nameInput.value || '';
-    const dot = val.lastIndexOf('.');
-    const end = dot > 0 ? dot : val.length;
-    setTimeout(() => nameInput.setSelectionRange(0, end), 0);
+    (function() {
+      const prev = document.referrer
+      const cancel = document.querySelector("#cancel")
+      if (prev && new URL(prev).origin === location.origin) {
+        cancel.href = prev
+      } else if (history.length > 1) {
+        cancel.addEventListener("click", (e) => {
+          e.preventDefault()
+          history.back()
+        })
+      }
+
+      const nameInput = document.querySelector("#name")
+      const val = nameInput?.value || ""
+      const dot = val.lastIndexOf(".")
+      const end = dot > 0 ? dot : val.length
+      setTimeout(() => nameInput?.setSelectionRange(0, end), 0)
+    })()
   </script>
 </html>
