@@ -9,7 +9,9 @@
   <body>
     <% if (locals.currentUser) { %>
       <h1>WELCOME BACK <%= currentUser.username %></h1>
-      <a href="/folders/new">New Folder</a>
+      <a href="<%= locals.baseLink ?? "/folders/new" %>">
+        New Folder
+      </a>
       <%- include("partials/upload") %>
       <ul>
         <% folders.forEach((file) => { %>

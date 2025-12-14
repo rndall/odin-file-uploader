@@ -10,22 +10,26 @@ async function getIndex(req, res, next) {
 		const ownerId = req.user.id
 
 		try {
-			folders = await prisma.folder.findMany({
-				where: { ownerId },
+			const rootFolders = await prisma.folder.findMany({
+				where: {
+					AND: [{ ownerId }, { parentId: null }],
+				},
 			})
 
-			folders = folders.map(({ id, name, modifiedAt }) => ({
+			folders = rootFolders.map(({ id, name, modifiedAt }) => ({
 				id,
 				name,
 				dateModified: formatDateModified(modifiedAt),
 			}))
 
-			files = await prisma.file.findMany({
-				where: { ownerId },
+			const rootFiles = await prisma.file.findMany({
+				where: {
+					AND: [{ ownerId }, { folderId: null }],
+				},
 				include: { owner: true },
 			})
 
-			files = files.map(({ id, name, size, modifiedAt }) => ({
+			files = rootFiles.map(({ id, name, size, modifiedAt }) => ({
 				id,
 				name,
 				size: formatBytes(size),
