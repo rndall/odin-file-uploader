@@ -9,10 +9,14 @@
   <body>
     <% if (locals.currentUser) { %>
       <h1>WELCOME BACK <%= currentUser.username %></h1>
+      <a href="/folders/new">New Folder</a>
       <%- include("partials/upload") %>
       <ul>
+        <% folders.forEach((file) => { %>
+          <%- include("files/file", { file, type: "folders" }) %>
+        <% }) %>
         <% files.forEach((file) => { %>
-          <%- include("files/file", { file }) %>
+          <%- include("files/file", { file, type: "files" }) %>
         <% }) %>
       </ul> 
       <a href="/log-out">LOG OUT</a>

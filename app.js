@@ -10,6 +10,7 @@ import sessionMiddleware from "./middlewares/session.js"
 
 import authRouter from "./routes/auth.js"
 import filesRouter from "./routes/files.js"
+import foldersRouter from "./routes/folders.js"
 import indexRouter from "./routes/index.js"
 
 const __filename = fileURLToPath(import.meta.url)
@@ -31,6 +32,7 @@ app.use(currentUser)
 app.use("/", authRouter)
 app.use("/", indexRouter)
 app.use("/files", filesRouter)
+app.use("/folders", foldersRouter)
 
 const assetsPath = join(__dirname, "public")
 app.use(static_(assetsPath))
