@@ -1,3 +1,4 @@
+import { unlink } from "node:fs/promises"
 import multer from "multer"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 import { prisma } from "../lib/prisma.js"
@@ -60,7 +61,8 @@ async function deleteFile(req, res, next) {
 	}
 
 	try {
-		await prisma.file.delete({ where: { id } })
+		const file = await prisma.file.delete({ where: { id } })
+		await unlink(file.path)
 		res.redirect("/")
 	} catch (err) {
 		next(err)
