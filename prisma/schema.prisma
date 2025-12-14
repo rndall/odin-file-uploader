@@ -53,7 +53,7 @@ model Folder {
   owner    User     @relation(fields: [ownerId], references: [id])
   ownerId  String
   parent   Folder?  @relation("FolderChildren", fields: [parentId], references: [id])
-  parentId String
+  parentId String?
   children Folder[] @relation("FolderChildren")
   files    File[]
 }
