@@ -25,18 +25,35 @@ model User {
   username     String @unique
   passwordHash String
 
-  files File[]
+  files   File[]
+  folders Folder[]
 }
 
 model File {
-  id       String @id @default(uuid())
-  name     String
-  size     Int
-  mimeType String
-  path     String
-
+  id         String   @id @default(uuid())
+  name       String
+  size       Int
+  mimeType   String
+  path       String
   createdAt  DateTime @default(now())
   modifiedAt DateTime @updatedAt
-  owner      User     @relation(fields: [ownerId], references: [id])
-  ownerId    String
+
+  owner    User    @relation(fields: [ownerId], references: [id])
+  ownerId  String
+  folder   Folder? @relation(fields: [folderId], references: [id])
+  folderId String?
+}
+
+model Folder {
+  id         String   @id @default(uuid())
+  name       String
+  createdAt  DateTime @default(now())
+  modifiedAt DateTime @updatedAt
+
+  owner    User     @relation(fields: [ownerId], references: [id])
+  ownerId  String
+  parent   Folder?  @relation("FolderChildren", fields: [parentId], references: [id])
+  parentId String
+  children Folder[] @relation("FolderChildren")
+  files    File[]
 }
