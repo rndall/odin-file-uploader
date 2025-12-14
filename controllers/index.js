@@ -78,8 +78,12 @@ async function renameFileGet(req, res, next) {
 
 	try {
 		const file = await prisma.file.findUnique({ where: { id } })
-		res.render("files/rename-form", {
-			file: { id: file.id, name: file.name },
+		res.render("form", {
+			title: "Rename",
+			heading: "Rename",
+			action: `/${file.id}/rename`,
+			defaultValue: file.name,
+			submitBtn: "OK",
 		})
 	} catch (err) {
 		next(err)

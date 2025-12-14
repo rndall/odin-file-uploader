@@ -3,21 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home</title>
+    <title><%= title %></title>
   </head>
 
   <body>
-    <h1>Rename</h1>
-    <form action="/<%= file.id %>/rename" method="POST">
+    <h1><%= heading %></h1>
+    <form action="<%= action %>" method="POST">
       <input
         id="name"
         name="name"
-        value="<%= file.name %>"
+        value="<%= defaultValue %>"
         type="text"
         autofocus
         required
       />
-      <button type="submit">OK</button>
+      <button type="submit">
+        <%= submitBtn %>
+      </button>
     </form>
   </body>
   
