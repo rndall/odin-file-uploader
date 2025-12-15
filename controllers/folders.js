@@ -39,12 +39,16 @@ async function createFolderPost(req, res, next) {
 async function deleteFolder(req, res, next) {
 	const { id } = req.params
 
-	if (!id) {
-		throw new CustomNotFoundError("Folder not found!")
-	}
-
 	try {
-		const deletedFolder = await prisma.folder.delete({ where: { id } })
+		const deletedFolder = await prisma.folder.delete({
+			where: { id },
+			select: { parentId },
+		})
+
+		if (!deletedFolder) {
+			throw new CustomNotFoundError("Folder not found!")
+		}
+
 		redirectToFolder(res, deletedFolder.parentId)
 	} catch (err) {
 		next(err)
@@ -54,12 +58,16 @@ async function deleteFolder(req, res, next) {
 async function renameFolderGet(req, res, next) {
 	const { id } = req.params
 
-	if (!id) {
-		throw new CustomNotFoundError("Folder not found!")
-	}
-
 	try {
-		const folder = await prisma.folder.findUnique({ where: { id } })
+		const folder = await prisma.folder.findUnique({
+			where: { id },
+			select: { name: true },
+		})
+
+		if (!folder) {
+			throw new CustomNotFoundError("Folder not found!")
+		}
+
 		res.render("form", {
 			title: "Rename Folder",
 			heading: "Rename",
@@ -75,15 +83,17 @@ async function renameFolderPost(req, res, next) {
 	const { id } = req.params
 	const { name } = req.body
 
-	if (!id) {
-		throw new CustomNotFoundError("Folder not found!")
-	}
-
 	try {
 		const updatedFolder = await prisma.folder.update({
 			where: { id },
 			data: { name },
+			select: { parentId: true },
 		})
+
+		if (!updatedFolder) {
+			throw new CustomNotFoundError("Folder not found!")
+		}
+
 		redirectToFolder(res, updatedFolder.parentId)
 	} catch (err) {
 		next(err)
@@ -93,21 +103,21 @@ async function renameFolderPost(req, res, next) {
 async function getFolderById(req, res, next) {
 	const { id } = req.params
 
-	if (!id) {
-		throw new CustomNotFoundError("Folder not found!")
-	}
-
 	const baseLink = `${req.originalUrl}/children`
 	const fileUploadFormAction = `/folders/${id}/files`
 
 	try {
 		const folder = await prisma.folder.findUnique({
 			where: { id },
-			include: {
+			select: {
 				children: true,
 				files: true,
 			},
 		})
+
+		if (!folder) {
+			throw new CustomNotFoundError("Folder not found!")
+		}
 
 		const folders = folder.children.map(({ id, name, modifiedAt }) => ({
 			id,
@@ -131,10 +141,6 @@ async function getFolderById(req, res, next) {
 async function createChildFolderGet(req, res) {
 	const { id } = req.params
 
-	if (!id) {
-		throw new CustomNotFoundError("Folder not found!")
-	}
-
 	res.render("form", {
 		title: "New Folder",
 		heading: "New Folder",
@@ -148,13 +154,10 @@ async function createChildFolderPost(req, res, next) {
 	const { id } = req.params
 	const ownerId = req.user.id
 
-	if (!id) {
-		throw new CustomNotFoundError("Folder not found!")
-	}
+	const { name } = req.body
 
 	try {
-		const { name } = req.body
-		await prisma.folder.update({
+		const folder = await prisma.folder.update({
 			where: { id },
 			data: {
 				children: {
@@ -169,6 +172,11 @@ async function createChildFolderPost(req, res, next) {
 				},
 			},
 		})
+
+		if (!folder) {
+			throw new CustomNotFoundError("Folder not found!")
+		}
+
 		res.redirect(`/folders/${id}`)
 	} catch (err) {
 		next(err)
@@ -182,14 +190,10 @@ const createFolderFilePost = [
 		const { id } = req.params
 		const ownerId = req.user.id
 
-		if (!id) {
-			throw new CustomNotFoundError("Folder not found!")
-		}
-
 		const { originalname: name, size, mimetype: mimeType, path } = req.file
 
 		try {
-			await prisma.folder.update({
+			const folder = await prisma.folder.update({
 				where: { id },
 				data: {
 					files: {
@@ -203,6 +207,11 @@ const createFolderFilePost = [
 					},
 				},
 			})
+
+			if (!folder) {
+				throw new CustomNotFoundError("Folder not found!")
+			}
+
 			res.redirect(`/folders/${id}`)
 		} catch (err) {
 			next(err)

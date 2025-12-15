@@ -10,9 +10,8 @@ const upload = multer({ dest: "./public/data/uploads/" })
 
 const createFilePost = [
 	upload.single("file"),
+	// TODO: Validate file,
 	async (req, res, next) => {
-		if (!req.file) throw new CustomNotFoundError("File not found!")
-
 		const { originalname: name, size, mimetype: mimeType, path } = req.file
 		const id = req.user.id
 
@@ -31,12 +30,16 @@ const createFilePost = [
 async function deleteFile(req, res, next) {
 	const { id } = req.params
 
-	if (!id) {
-		throw new CustomNotFoundError("File not found!")
-	}
-
 	try {
-		const deletedFile = await prisma.file.delete({ where: { id } })
+		const deletedFile = await prisma.file.delete({
+			where: { id },
+			select: { path: true, folderId: true },
+		})
+
+		if (!deletedFile) {
+			throw new CustomNotFoundError("File not found!")
+		}
+
 		await unlink(deletedFile.path)
 		redirectToFolder(res, deletedFile.folderId)
 	} catch (err) {
@@ -47,12 +50,16 @@ async function deleteFile(req, res, next) {
 async function renameFileGet(req, res, next) {
 	const { id } = req.params
 
-	if (!id) {
-		throw new CustomNotFoundError("File not found!")
-	}
-
 	try {
-		const file = await prisma.file.findUnique({ where: { id } })
+		const file = await prisma.file.findUnique({
+			where: { id },
+			select: { name: true },
+		})
+
+		if (!file) {
+			throw new CustomNotFoundError("File not found!")
+		}
+
 		res.render("form", {
 			title: "Rename File",
 			heading: "Rename",
@@ -68,15 +75,17 @@ async function renameFilePost(req, res, next) {
 	const { id } = req.params
 	const { name } = req.body
 
-	if (!id) {
-		throw new CustomNotFoundError("File not found!")
-	}
-
 	try {
 		const updatedFile = await prisma.file.update({
 			where: { id },
 			data: { name },
+			select: { folderId },
 		})
+
+		if (!updatedFile) {
+			throw new CustomNotFoundError("File not found!")
+		}
+
 		redirectToFolder(res, updatedFile.folderId)
 	} catch (err) {
 		next(err)

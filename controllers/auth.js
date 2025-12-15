@@ -1,5 +1,6 @@
 import { hash } from "bcrypt"
 import passport from "passport"
+
 import { prisma } from "../lib/prisma.js"
 
 async function signUpGet(_req, res) {
@@ -19,7 +20,6 @@ async function signUpPost(req, res, next) {
 		})
 		res.redirect("/")
 	} catch (error) {
-		// console.error(error)
 		next(error)
 	}
 }

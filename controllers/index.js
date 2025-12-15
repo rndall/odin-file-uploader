@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js"
+
 import { formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 
@@ -14,6 +15,7 @@ async function getIndex(req, res, next) {
 				where: {
 					AND: [{ ownerId }, { parentId: null }],
 				},
+				select: { id: true, name: true, modifiedAt: true },
 			})
 
 			folders = rootFolders.map(({ id, name, modifiedAt }) => ({
@@ -26,7 +28,13 @@ async function getIndex(req, res, next) {
 				where: {
 					AND: [{ ownerId }, { folderId: null }],
 				},
-				include: { owner: true },
+				select: {
+					id: true,
+					name: true,
+					size: true,
+					modifiedAt: true,
+					owner: true,
+				},
 			})
 
 			files = rootFiles.map(({ id, name, size, modifiedAt }) => ({
@@ -36,7 +44,7 @@ async function getIndex(req, res, next) {
 				dateModified: formatDateModified(modifiedAt),
 			}))
 		} catch (err) {
-			next(err)
+			return next(err)
 		}
 	}
 
