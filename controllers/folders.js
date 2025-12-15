@@ -1,8 +1,11 @@
 import multer from "multer"
+
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 import { prisma } from "../lib/prisma.js"
+
 import { formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
+import { redirectToFolder } from "../utils/paths.js"
 
 const upload = multer({ dest: "./public/data/uploads/" })
 
@@ -41,8 +44,8 @@ async function deleteFolder(req, res, next) {
 	}
 
 	try {
-		await prisma.folder.delete({ where: { id } })
-		res.redirect("/")
+		const deletedFolder = await prisma.folder.delete({ where: { id } })
+		redirectToFolder(res, deletedFolder.parentId)
 	} catch (err) {
 		next(err)
 	}
@@ -57,7 +60,6 @@ async function renameFolderGet(req, res, next) {
 
 	try {
 		const folder = await prisma.folder.findUnique({ where: { id } })
-		console.log(folder)
 		res.render("form", {
 			title: "Rename Folder",
 			heading: "Rename",
@@ -82,9 +84,7 @@ async function renameFolderPost(req, res, next) {
 			where: { id },
 			data: { name },
 		})
-		const { parentId } = updatedFolder
-		const path = parentId ? `/folders/${parentId}` : "/"
-		res.redirect(path)
+		redirectToFolder(res, updatedFolder.parentId)
 	} catch (err) {
 		next(err)
 	}

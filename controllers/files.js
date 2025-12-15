@@ -1,7 +1,10 @@
 import { unlink } from "node:fs/promises"
 import multer from "multer"
+
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 import { prisma } from "../lib/prisma.js"
+
+import { redirectToFolder } from "../utils/paths.js"
 
 const upload = multer({ dest: "./public/data/uploads/" })
 
@@ -35,9 +38,7 @@ async function deleteFile(req, res, next) {
 	try {
 		const deletedFile = await prisma.file.delete({ where: { id } })
 		await unlink(deletedFile.path)
-		const { folderId } = deletedFile
-		const path = folderId ? `/folders/${folderId}` : "/"
-		res.redirect(path)
+		redirectToFolder(res, deletedFile.folderId)
 	} catch (err) {
 		next(err)
 	}
@@ -76,9 +77,7 @@ async function renameFilePost(req, res, next) {
 			where: { id },
 			data: { name },
 		})
-		const { folderId } = updatedFile
-		const path = folderId ? `/folders/${folderId}` : "/"
-		res.redirect(path)
+		redirectToFolder(res, updatedFile.folderId)
 	} catch (err) {
 		next(err)
 	}
