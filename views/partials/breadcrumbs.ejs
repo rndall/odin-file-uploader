@@ -1,0 +1,17 @@
+<nav>
+  <ol>
+    <% breadcrumbs.forEach((crumb, i) => { %>
+      <% if (i !== 0) { %>
+        <p>></p>
+      <% } %>
+
+      <li>
+        <a 
+          href="<%= crumb.url %>"
+        >
+          <%= crumb.name %>
+        </a>
+      </li>
+    <% }) %>
+  </ol>
+</nav>

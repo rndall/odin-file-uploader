@@ -12,6 +12,7 @@
       <a href="<%= locals.baseLink ?? "/folders/new" %>">
         New Folder
       </a>
+      <%- include("partials/breadcrumbs", { breadcrumbs }) %>
       <%- include("partials/upload") %>
       <ul>
         <% folders.forEach((file) => { %>

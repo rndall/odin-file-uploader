@@ -3,6 +3,7 @@ import multer from "multer"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 import { prisma } from "../lib/prisma.js"
 
+import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
 import { formatDate, formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { redirectToFolder } from "../utils/paths.js"
@@ -110,6 +111,7 @@ async function getFolderById(req, res, next) {
 		const folder = await prisma.folder.findUnique({
 			where: { id },
 			select: {
+				id: true,
 				children: true,
 				files: true,
 			},
@@ -132,7 +134,15 @@ async function getFolderById(req, res, next) {
 			dateModified: formatDateModified(modifiedAt),
 		}))
 
-		res.render("index", { folders, files, baseLink, fileUploadFormAction })
+		const breadcrumbs = await buildBreadcrumbs(folder.id)
+
+		res.render("index", {
+			folders,
+			files,
+			baseLink,
+			fileUploadFormAction,
+			breadcrumbs,
+		})
 	} catch (err) {
 		next(err)
 	}

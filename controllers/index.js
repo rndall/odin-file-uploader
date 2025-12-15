@@ -1,11 +1,13 @@
 import { prisma } from "../lib/prisma.js"
 
+import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
 import { formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 
 async function getIndex(req, res, next) {
 	let folders = []
 	let files = []
+	let breadcrumbs = []
 
 	if (req.isAuthenticated()) {
 		const ownerId = req.user.id
@@ -43,12 +45,14 @@ async function getIndex(req, res, next) {
 				size: formatBytes(size),
 				dateModified: formatDateModified(modifiedAt),
 			}))
+
+			breadcrumbs = await buildBreadcrumbs(null)
 		} catch (err) {
 			return next(err)
 		}
 	}
 
-	res.render("index", { folders, files })
+	res.render("index", { folders, files, breadcrumbs })
 }
 
 export { getIndex }
