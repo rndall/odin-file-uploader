@@ -14,7 +14,7 @@ import foldersRouter from "./routes/folders.js"
 import indexRouter from "./routes/index.js"
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+export const __dirname = dirname(__filename)
 
 const app = express()
 

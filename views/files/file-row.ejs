@@ -17,6 +17,15 @@
     >
       Rename
     </a>
+    
+    <% if (type === "files") { %> 
+      <form
+        action="/<%= type %>/<%= file.id %>/download"
+        method="GET"
+      >
+        <button type="submit">Download</button>
+      </form>
+    <% } %> 
 
     <form
       action="/<%= type %>/<%= file.id %>/delete"

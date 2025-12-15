@@ -1,8 +1,11 @@
 import { unlink } from "node:fs/promises"
+import { join } from "node:path"
 import multer from "multer"
 
+import { __dirname } from "../app.js"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 import { prisma } from "../lib/prisma.js"
+
 import { formatDate } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { redirectToFolder } from "../utils/paths.js"
@@ -70,6 +73,28 @@ async function getFileById(req, res, next) {
 		}
 
 		res.render("files/file", { file: formattedFile, type: "files" })
+	} catch (err) {
+		next(err)
+	}
+}
+
+async function downloadFile(req, res, next) {
+	const { id } = req.params
+
+	try {
+		const file = await prisma.file.findUnique({
+			where: { id },
+			select: { name: true, path: true },
+		})
+
+		if (!file) {
+			throw new CustomNotFoundError("File not found!")
+		}
+
+		const uploadsPath = join(__dirname, file.path)
+		res.download(uploadsPath, file.name, (err) => {
+			if (err) return next(err)
+		})
 	} catch (err) {
 		next(err)
 	}
@@ -143,6 +168,7 @@ async function renameFilePost(req, res, next) {
 export {
 	createFilePost,
 	getFileById,
+	downloadFile,
 	deleteFile,
 	renameFileGet,
 	renameFilePost,
