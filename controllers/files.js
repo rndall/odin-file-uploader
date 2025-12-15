@@ -3,7 +3,8 @@ import multer from "multer"
 
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 import { prisma } from "../lib/prisma.js"
-
+import { formatDate } from "../utils/date-formatter.js"
+import formatBytes from "../utils/format-bytes.js"
 import { redirectToFolder } from "../utils/paths.js"
 
 const upload = multer({ dest: "./public/data/uploads/" })
@@ -26,6 +27,53 @@ const createFilePost = [
 		}
 	},
 ]
+
+async function getFileById(req, res, next) {
+	const { id: fileId } = req.params
+
+	try {
+		const file = await prisma.file.findUnique({
+			where: { id: fileId },
+			select: {
+				id: true,
+				name: true,
+				size: true,
+				mimeType: true,
+				owner: true,
+				folder: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+				modifiedAt: true,
+				createdAt: true,
+			},
+		})
+
+		if (!file) {
+			throw new CustomNotFoundError("File not found!")
+		}
+
+		const { id, name, size, mimeType, owner, folder, modifiedAt, createdAt } =
+			file
+
+		const formattedFile = {
+			id,
+			name,
+			size: formatBytes(size),
+			mimeType,
+			owner,
+			folder,
+			createdAt: formatDate(createdAt),
+			modifiedAt: formatDate(modifiedAt),
+		}
+
+		res.render("files/file", { file: formattedFile, type: "files" })
+	} catch (err) {
+		next(err)
+	}
+}
 
 async function deleteFile(req, res, next) {
 	const { id } = req.params
@@ -92,4 +140,10 @@ async function renameFilePost(req, res, next) {
 	}
 }
 
-export { createFilePost, deleteFile, renameFileGet, renameFilePost }
+export {
+	createFilePost,
+	getFileById,
+	deleteFile,
+	renameFileGet,
+	renameFilePost,
+}

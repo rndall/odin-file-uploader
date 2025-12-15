@@ -21,4 +21,14 @@ function formatDateModified(modifiedAt) {
 	return formatter.format(modifiedAt)
 }
 
-export { formatDateModified }
+function formatDate(isoString) {
+	const formatter = new Intl.DateTimeFormat("en-US", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	})
+
+	return formatter.format(isoString)
+}
+
+export { formatDateModified, formatDate }

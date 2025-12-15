@@ -15,10 +15,10 @@
       <%- include("partials/upload") %>
       <ul>
         <% folders.forEach((file) => { %>
-          <%- include("files/file", { file, type: "folders" }) %>
+          <%- include("files/file-row", { file, type: "folders" }) %>
         <% }) %>
         <% files.forEach((file) => { %>
-          <%- include("files/file", { file, type: "files" }) %>
+          <%- include("files/file-row", { file, type: "files" }) %>
         <% }) %>
       </ul> 
       <a href="/log-out">LOG OUT</a>

@@ -7,6 +7,7 @@ import {
 	createFolderPost,
 	deleteFolder,
 	getFolderById,
+	getFolderDetailsById,
 	renameFolderGet,
 	renameFolderPost,
 } from "../controllers/folders.js"
@@ -21,10 +22,11 @@ router.get("/new", createFolderGet)
 
 router.get("/:id", getFolderById)
 
-router.post("/:id/children", createChildFolderPost)
-router.post("/:id/files", createFolderFilePost)
+router.get("/:id/details", getFolderDetailsById)
 
 router.get("/:id/children", createChildFolderGet)
+router.post("/:id/children", createChildFolderPost)
+router.post("/:id/files", createFolderFilePost)
 
 router.get("/:id/rename", renameFolderGet)
 router.post("/:id/rename", renameFolderPost)

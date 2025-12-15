@@ -1,0 +1,28 @@
+<li>
+  <a href="/<%= type %>/<%= file.id %>">
+    <%= file.name %>
+    <%= file.dateModified %>
+    <%= file.size %>
+    
+    <a 
+      href="/<%= type %>/<%= file.id %><%= type === "folders"
+      ? "/details"
+      : "" %>"
+    >
+      Details
+    </a>
+   
+    <a
+      href="/<%= type %>/<%= file.id %>/rename"
+    >
+      Rename
+    </a>
+
+    <form
+      action="/<%= type %>/<%= file.id %>/delete"
+      method="POST"
+    >
+      <button type="submit">Delete</button>
+    </form>
+  </a>
+</li>

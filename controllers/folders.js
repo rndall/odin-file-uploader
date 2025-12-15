@@ -3,7 +3,7 @@ import multer from "multer"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 import { prisma } from "../lib/prisma.js"
 
-import { formatDateModified } from "../utils/date-formatter.js"
+import { formatDate, formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { redirectToFolder } from "../utils/paths.js"
 
@@ -138,6 +138,41 @@ async function getFolderById(req, res, next) {
 	}
 }
 
+async function getFolderDetailsById(req, res, next) {
+	const { id: folderId } = req.params
+
+	try {
+		const folder = await prisma.folder.findUnique({
+			where: { id: folderId },
+			select: {
+				id: true,
+				name: true,
+				modifiedAt: true,
+				createdAt: true,
+				parent: { select: { id: true, name: true } },
+			},
+		})
+
+		if (!folder) {
+			throw new CustomNotFoundError("Folder not found!")
+		}
+
+		const { id, name, parent, modifiedAt, createdAt } = folder
+
+		const formattedFolder = {
+			id,
+			name,
+			folder: parent,
+			modifiedAt: formatDate(modifiedAt),
+			createdAt: formatDate(createdAt),
+		}
+
+		res.render("files/file", { file: formattedFolder, type: "folders" })
+	} catch (err) {
+		next(err)
+	}
+}
+
 async function createChildFolderGet(req, res) {
 	const { id } = req.params
 
@@ -226,6 +261,7 @@ export {
 	renameFolderGet,
 	renameFolderPost,
 	getFolderById,
+	getFolderDetailsById,
 	createChildFolderGet,
 	createChildFolderPost,
 	createFolderFilePost,
