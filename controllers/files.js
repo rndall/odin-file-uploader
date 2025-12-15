@@ -79,7 +79,7 @@ async function renameFilePost(req, res, next) {
 		const updatedFile = await prisma.file.update({
 			where: { id },
 			data: { name },
-			select: { folderId },
+			select: { folderId: true },
 		})
 
 		if (!updatedFile) {
