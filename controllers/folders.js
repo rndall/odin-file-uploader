@@ -43,7 +43,7 @@ async function deleteFolder(req, res, next) {
 	try {
 		const deletedFolder = await prisma.folder.delete({
 			where: { id },
-			select: { parentId },
+			select: { parentId: true },
 		})
 
 		if (!deletedFolder) {
