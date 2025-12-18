@@ -1,14 +1,15 @@
-import multer from "multer"
-
+import { SUPABASE_BUCKET } from "../config.mjs"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
+
+import { upload } from "../lib/multer.js"
 import { prisma } from "../lib/prisma.js"
+import supabase from "../lib/supabaseServer.js"
 
 import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
+import buildPath from "../utils/build-path.js"
 import { formatDate, formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { redirectToFolder } from "../utils/paths.js"
-
-const upload = multer({ dest: "./public/data/uploads/" })
 
 async function createFolderGet(_req, res) {
 	res.render("form", {
@@ -235,7 +236,15 @@ const createFolderFilePost = [
 		const { id } = req.params
 		const ownerId = req.user.id
 
-		const { originalname: name, size, mimetype: mimeType, path } = req.file
+		const { originalname: name, size, mimetype: mimeType, buffer } = req.file
+
+		const path = buildPath(ownerId, id, name)
+
+		const { error } = await supabase.storage
+			.from(SUPABASE_BUCKET)
+			.upload(path, buffer, { contentType: mimeType })
+
+		if (error) throw error
 
 		try {
 			const folder = await prisma.folder.update({

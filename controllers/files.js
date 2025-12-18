@@ -1,23 +1,32 @@
 import { unlink } from "node:fs/promises"
 import { join } from "node:path"
-import multer from "multer"
 
 import { __dirname } from "../app.js"
+import { SUPABASE_BUCKET } from "../config.mjs"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
-import { prisma } from "../lib/prisma.js"
 
+import { upload } from "../lib/multer.js"
+import { prisma } from "../lib/prisma.js"
+import supabase from "../lib/supabaseServer.js"
+import buildPath from "../utils/build-path.js"
 import { formatDate } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { redirectToFolder } from "../utils/paths.js"
-
-const upload = multer({ dest: "./public/data/uploads/" })
 
 const createFilePost = [
 	upload.single("file"),
 	// TODO: Validate file,
 	async (req, res, next) => {
-		const { originalname: name, size, mimetype: mimeType, path } = req.file
+		const { originalname: name, size, mimetype: mimeType, buffer } = req.file
 		const id = req.user.id
+
+		const path = buildPath(id, null, name)
+
+		const { error } = await supabase.storage
+			.from(SUPABASE_BUCKET)
+			.upload(path, buffer, { contentType: mimeType })
+
+		if (error) throw error
 
 		try {
 			await prisma.file.create({
