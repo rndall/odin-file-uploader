@@ -44,7 +44,7 @@ async function getFileById(req, res, next) {
 
 	try {
 		const file = await prisma.file.findUnique({
-			where: { id: fileId },
+			where: { id: fileId, ownerId: req.user.id },
 			select: {
 				id: true,
 				name: true,
@@ -86,12 +86,13 @@ async function getFileById(req, res, next) {
 	}
 }
 
+// TODO: Implement downloads from supabase
 async function downloadFile(req, res, next) {
 	const { id } = req.params
 
 	try {
 		const file = await prisma.file.findUnique({
-			where: { id },
+			where: { id, ownerId: req.user.id },
 			select: { name: true, path: true },
 		})
 
@@ -110,10 +111,11 @@ async function downloadFile(req, res, next) {
 
 async function deleteFile(req, res, next) {
 	const { id } = req.params
+	const ownerId = req.user.id
 
 	try {
 		const file = await prisma.file.findUnique({
-			where: { id, ownerId: req.user.id },
+			where: { id, ownerId },
 			select: { path: true, folderId: true, ownerId: true },
 		})
 
@@ -127,7 +129,7 @@ async function deleteFile(req, res, next) {
 
 		if (error) throw error
 
-		await prisma.file.delete({ where: { id } })
+		await prisma.file.delete({ where: { id, ownerId } })
 
 		redirectToFolder(res, file.folderId)
 	} catch (err) {
@@ -140,7 +142,7 @@ async function renameFileGet(req, res, next) {
 
 	try {
 		const file = await prisma.file.findUnique({
-			where: { id },
+			where: { id, ownerId: req.user.id },
 			select: { name: true },
 		})
 
@@ -165,7 +167,7 @@ async function renameFilePost(req, res, next) {
 
 	try {
 		const updatedFile = await prisma.file.update({
-			where: { id },
+			where: { id, ownerId: req.user.id },
 			data: { name },
 			select: { folderId: true },
 		})

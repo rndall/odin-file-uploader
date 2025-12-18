@@ -43,6 +43,7 @@ async function createFolderPost(req, res, next) {
 
 async function deleteFolder(req, res, next) {
 	const { id } = req.params
+	const ownerId = req.user.id
 
 	const folderPath = await getFullFolderPath(id)
 	const prefix = `${req.user.id}/${folderPath}`
@@ -51,6 +52,7 @@ async function deleteFolder(req, res, next) {
 		const files = await prisma.file.findMany({
 			where: {
 				path: { startsWith: prefix },
+				ownerId,
 			},
 			select: { path: true },
 		})
@@ -66,11 +68,11 @@ async function deleteFolder(req, res, next) {
 		}
 
 		await prisma.file.deleteMany({
-			where: { path: { startsWith: prefix } },
+			where: { path: { startsWith: prefix }, ownerId },
 		})
 
 		const deletedFolder = await prisma.folder.delete({
-			where: { id },
+			where: { id, ownerId },
 			select: { parentId: true },
 		})
 
@@ -89,7 +91,7 @@ async function renameFolderGet(req, res, next) {
 
 	try {
 		const folder = await prisma.folder.findUnique({
-			where: { id },
+			where: { id, ownerId: req.user.id },
 			select: { name: true },
 		})
 
@@ -114,7 +116,7 @@ async function renameFolderPost(req, res, next) {
 
 	try {
 		const updatedFolder = await prisma.folder.update({
-			where: { id },
+			where: { id, ownerId: req.user.id },
 			data: { name },
 			select: { parentId: true },
 		})
@@ -137,7 +139,7 @@ async function getFolderById(req, res, next) {
 
 	try {
 		const folder = await prisma.folder.findUnique({
-			where: { id },
+			where: { id, ownerId: req.user.id },
 			select: {
 				id: true,
 				children: true,
@@ -181,7 +183,7 @@ async function getFolderDetailsById(req, res, next) {
 
 	try {
 		const folder = await prisma.folder.findUnique({
-			where: { id: folderId },
+			where: { id: folderId, ownerId: req.user.id },
 			select: {
 				id: true,
 				name: true,
@@ -231,7 +233,7 @@ async function createChildFolderPost(req, res, next) {
 
 	try {
 		const folder = await prisma.folder.update({
-			where: { id },
+			where: { id, ownerId },
 			data: {
 				children: {
 					create: {
@@ -276,7 +278,7 @@ const createFolderFilePost = [
 
 		try {
 			const folder = await prisma.folder.update({
-				where: { id },
+				where: { id, ownerId },
 				data: {
 					files: {
 						create: {
