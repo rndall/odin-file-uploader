@@ -6,10 +6,13 @@ import { prisma } from "../lib/prisma.js"
 import supabase from "../lib/supabaseServer.js"
 
 import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
-import buildPath from "../utils/build-path.js"
 import { formatDate, formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
-import { redirectToFolder } from "../utils/paths.js"
+import {
+	buildFilePath,
+	getFullFolderPath,
+	redirectToFolder,
+} from "../utils/paths.js"
 
 async function createFolderGet(_req, res) {
 	res.render("form", {
@@ -238,7 +241,8 @@ const createFolderFilePost = [
 
 		const { originalname: name, size, mimetype: mimeType, buffer } = req.file
 
-		const path = buildPath(ownerId, id, name)
+		const folderPath = await getFullFolderPath(id)
+		const path = buildFilePath(ownerId, name, folderPath)
 
 		const { error } = await supabase.storage
 			.from(SUPABASE_BUCKET)

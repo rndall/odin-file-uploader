@@ -2,17 +2,15 @@ import { join } from "node:path"
 
 import { __dirname } from "../app.js"
 import { SUPABASE_BUCKET } from "../config.mjs"
-
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 
 import { upload } from "../lib/multer.js"
 import { prisma } from "../lib/prisma.js"
 import supabase from "../lib/supabaseServer.js"
 
-import buildPath from "../utils/build-path.js"
 import { formatDate } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
-import { redirectToFolder } from "../utils/paths.js"
+import { buildFilePath, redirectToFolder } from "../utils/paths.js"
 
 const createFilePost = [
 	upload.single("file"),
@@ -21,7 +19,7 @@ const createFilePost = [
 		const { originalname: name, size, mimetype: mimeType, buffer } = req.file
 		const id = req.user.id
 
-		const path = buildPath(id, null, name)
+		const path = buildFilePath(id, name)
 
 		const { error } = await supabase.storage
 			.from(SUPABASE_BUCKET)
