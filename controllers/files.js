@@ -1,13 +1,14 @@
-import { unlink } from "node:fs/promises"
 import { join } from "node:path"
 
 import { __dirname } from "../app.js"
 import { SUPABASE_BUCKET } from "../config.mjs"
+
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 
 import { upload } from "../lib/multer.js"
 import { prisma } from "../lib/prisma.js"
 import supabase from "../lib/supabaseServer.js"
+
 import buildPath from "../utils/build-path.js"
 import { formatDate } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
@@ -113,17 +114,24 @@ async function deleteFile(req, res, next) {
 	const { id } = req.params
 
 	try {
-		const deletedFile = await prisma.file.delete({
-			where: { id },
-			select: { path: true, folderId: true },
+		const file = await prisma.file.findUnique({
+			where: { id, ownerId: req.user.id },
+			select: { path: true, folderId: true, ownerId: true },
 		})
 
-		if (!deletedFile) {
+		if (!file) {
 			throw new CustomNotFoundError("File not found!")
 		}
 
-		await unlink(deletedFile.path)
-		redirectToFolder(res, deletedFile.folderId)
+		const { error } = await supabase.storage
+			.from(SUPABASE_BUCKET)
+			.remove([file.path])
+
+		if (error) throw error
+
+		await prisma.file.delete({ where: { id } })
+
+		redirectToFolder(res, file.folderId)
 	} catch (err) {
 		next(err)
 	}
