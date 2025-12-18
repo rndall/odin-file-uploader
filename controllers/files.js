@@ -1,7 +1,7 @@
 import { join } from "node:path"
 
 import { __dirname } from "../app.js"
-import { SUPABASE_BUCKET } from "../config.mjs"
+import { SUPABASE_BUCKET } from "../config/config.js"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 
 import { upload } from "../lib/multer.js"

@@ -1,4 +1,4 @@
-import { SUPABASE_BUCKET } from "../config.mjs"
+import { SUPABASE_BUCKET } from "../config/config.js"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 
 import { upload } from "../lib/multer.js"
@@ -44,7 +44,31 @@ async function createFolderPost(req, res, next) {
 async function deleteFolder(req, res, next) {
 	const { id } = req.params
 
+	const folderPath = await getFullFolderPath(id)
+	const prefix = `${req.user.id}/${folderPath}`
+
 	try {
+		const files = await prisma.file.findMany({
+			where: {
+				path: { startsWith: prefix },
+			},
+			select: { path: true },
+		})
+
+		const paths = files.map((f) => f.path)
+
+		if (paths.length) {
+			const { error } = await supabase.storage
+				.from(SUPABASE_BUCKET)
+				.remove(paths)
+
+			if (error) throw error
+		}
+
+		await prisma.file.deleteMany({
+			where: { path: { startsWith: prefix } },
+		})
+
 		const deletedFolder = await prisma.folder.delete({
 			where: { id },
 			select: { parentId: true },
