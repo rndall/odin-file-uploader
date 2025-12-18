@@ -2,8 +2,11 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
 import express, { static as static_, urlencoded } from "express"
+
 import passport from "passport"
+import { PORT } from "./config/config.js"
 import configurePassport from "./config/passport.js"
+
 import currentUser from "./middlewares/current-user.js"
 import errorHandler from "./middlewares/error-handler.js"
 import sessionMiddleware from "./middlewares/session.js"
@@ -39,7 +42,6 @@ app.use(static_(assetsPath))
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 3000
 app.listen(PORT, (err) => {
 	if (err) {
 		throw err
