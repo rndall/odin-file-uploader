@@ -1,0 +1,7 @@
+<% if (locals.errors?.length) { 
+  const errorMsg = errors.find(({ path }) => path === field)?.msg
+%>
+  <% if (errorMsg) { %>
+    <p role="alert" aria-live="polite"><%= errorMsg %></p>
+  <% } %>
+<% } %>
