@@ -1,6 +1,3 @@
-import { join } from "node:path"
-
-import { __dirname } from "../app.js"
 import { SUPABASE_BUCKET } from "../config/config.js"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 
@@ -86,24 +83,34 @@ async function getFileById(req, res, next) {
 	}
 }
 
-// TODO: Implement downloads from supabase
 async function downloadFile(req, res, next) {
 	const { id } = req.params
 
 	try {
 		const file = await prisma.file.findUnique({
 			where: { id, ownerId: req.user.id },
-			select: { name: true, path: true },
+			select: { name: true, path: true, mimeType: true },
 		})
 
 		if (!file) {
 			throw new CustomNotFoundError("File not found!")
 		}
 
-		const uploadsPath = join(__dirname, file.path)
-		res.download(uploadsPath, file.name, (err) => {
-			if (err) return next(err)
-		})
+		const { data, error } = await supabase.storage
+			.from(SUPABASE_BUCKET)
+			.download(file.path)
+
+		if (error) throw error
+
+		const buffer = Buffer.from(await data.arrayBuffer())
+
+		res.set("Content-Type", file.mimeType)
+		res.set(
+			"Content-Disposition",
+			`attachment; filename="${encodeURIComponent(file.name)}"`,
+		)
+		res.set("Content-Length", buffer.length)
+		res.send(buffer)
 	} catch (err) {
 		next(err)
 	}
