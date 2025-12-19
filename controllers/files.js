@@ -1,3 +1,5 @@
+import { matchedData } from "express-validator"
+
 import { SUPABASE_BUCKET } from "../config/config.js"
 import CustomNotFoundError from "../errors/CustomNotFoundError.js"
 
@@ -5,14 +7,19 @@ import { upload } from "../lib/multer.js"
 import { prisma } from "../lib/prisma.js"
 import supabase from "../lib/supabaseServer.js"
 
+import validateResult from "../middlewares/validate-result.js"
 import { formatDate } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { buildFilePath, redirectToFolder } from "../utils/paths.js"
+import { validateFileName } from "../validators/files.js"
 
 const createFilePost = [
 	upload.single("file"),
-	// TODO: Validate file,
 	async (req, res, next) => {
+		if (!req.file) {
+			throw new CustomNotFoundError("File not found!")
+		}
+
 		const { originalname: name, size, mimetype: mimeType, buffer } = req.file
 		const id = req.user.id
 
@@ -168,26 +175,47 @@ async function renameFileGet(req, res, next) {
 	}
 }
 
-async function renameFilePost(req, res, next) {
-	const { id } = req.params
-	const { name } = req.body
+const renameFilePost = [
+	validateFileName,
+	validateResult,
+	async (req, res, next) => {
+		const { errors } = req
+		const { id } = req.params
+		const ownerId = req.user.id
 
-	try {
-		const updatedFile = await prisma.file.update({
-			where: { id, ownerId: req.user.id },
-			data: { name },
-			select: { folderId: true },
-		})
-
-		if (!updatedFile) {
-			throw new CustomNotFoundError("File not found!")
+		if (errors) {
+			const file = await prisma.file.findUnique({
+				where: { id, ownerId },
+				select: { name: true },
+			})
+			return res.render("form", {
+				title: "Rename File",
+				heading: "Rename",
+				defaultValue: file.name,
+				submitBtn: "OK",
+				errors,
+			})
 		}
 
-		redirectToFolder(res, updatedFile.folderId)
-	} catch (err) {
-		next(err)
-	}
-}
+		const { name } = matchedData(req)
+
+		try {
+			const updatedFile = await prisma.file.update({
+				where: { id, ownerId },
+				data: { name },
+				select: { folderId: true },
+			})
+
+			if (!updatedFile) {
+				throw new CustomNotFoundError("File not found!")
+			}
+
+			redirectToFolder(res, updatedFile.folderId)
+		} catch (err) {
+			next(err)
+		}
+	},
+]
 
 export {
 	createFilePost,
