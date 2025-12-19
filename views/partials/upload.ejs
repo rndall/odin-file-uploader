@@ -2,7 +2,22 @@
   action="<%= locals.fileUploadFormAction ?? "/files" %>"
   method="POST"
   enctype="multipart/form-data"
+  id="uploadForm"
 >
-  <input type="file" name="file" required />
-  <button type="submit">Upload</button>
+  <input type="file" name="file" id="file" required />
+  <noscript>
+    <button type="submit">Upload</button>
+  </noscript>
 </form>
+
+<script>
+  (function () {
+    const input = document.querySelector("#file")
+    
+    input.addEventListener("change", () => {
+      if (input.files.length > 0) {
+        document.querySelector("#uploadForm").submit()
+      }
+    })
+  })()
+</script>
