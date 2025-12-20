@@ -3,39 +3,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/output.css">
     <title>Sign Up</title>
   </head>
 
   <body>
-    <h1>Sign Up</h1>
-    <form action="/sign-up" method="POST">
-      <label for="username">Username</label>
-      <input
-        id="username"
-        name="username"
-        placeholder="username"
-        value="<%= locals.user?.username %>"
-        type="text"
-        required
-      />
-      <%- include("partials/error", { field: "username" }) %>
-      <label for="password">Password</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        required
-      />
-      <%- include("partials/error", { field: "password" }) %>
-      <label for="passwordConfirmation">Confirm Password</label>
-      <input
-        id="passwordConfirmation"
-        name="passwordConfirmation"
-        type="password"
-        required
-      />
-      <%- include("partials/error", { field: "passwordConfirmation" }) %>
-      <button type="submit">Sign Up</button>
-    </form>
+    <main class="py-6 container content-center min-h-dvh">      
+      <div class="bg-foreground text-center mx-auto rounded-lg shadow-sm p-8 max-w-md space-y-8">
+        <div class="space-y-3"> 
+          <h1 class="text-white font-black text-3xl">Create your account</h1>
+          <p>Join our platform to store and manage your files securely.</p>
+        </div>
+        <form
+          class="space-y-5"
+          action="/sign-up"
+          method="POST"
+        >
+          <div class="flex flex-col gap-1 text-start">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              value="<%= locals.user?.username %>"
+              type="text"
+              required
+            />
+            <%- include("partials/error", { field: "username" }) %>
+          </div>
+          <div class="flex flex-col gap-1 text-start">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              required
+            />
+            <%- include("partials/error", { field: "password" }) %>
+          </div>
+          <div class="flex flex-col gap-1 text-start">
+            <label for="passwordConfirmation">Confirm Password</label>
+            <input
+              id="passwordConfirmation"
+              name="passwordConfirmation"
+              type="password"
+              placeholder="Confirm your password"
+              required
+            />
+            <%- include("partials/error", { field: "passwordConfirmation" }) %>
+          </div>
+          <button
+            class="bg-primary text-white font-bold rounded-lg w-full p-3 mt-5"
+            type="submit"
+          >
+            Sign Up
+          </button>
+        </form>
+
+        <p>Already have an account? <a class="hover:underline text-primary font-semibold" href="/log-in">Log In</a></p>
+      </div>
+    </main>
   </body>
 </html>

@@ -4,3 +4,4 @@ node_modules
 
 /generated/prisma
 /public/data/uploads
+/public/css/output.css

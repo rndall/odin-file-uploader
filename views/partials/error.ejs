@@ -2,6 +2,6 @@
   const errorMsg = errors.find(({ path }) => path === field)?.msg
 %>
   <% if (errorMsg) { %>
-    <p role="alert" aria-live="polite"><%= errorMsg %></p>
+    <p class="text-red-600 font-semibold" role="alert" aria-live="polite"><%= errorMsg %></p>
   <% } %>
 <% } %>

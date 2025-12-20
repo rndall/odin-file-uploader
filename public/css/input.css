@@ -1,0 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+	--font-inter: Inter, sans-serif;
+
+	--color-primary: #137fec;
+	--color-foreground: #1e293b;
+	--color-paragraph: var(--color-slate-400);
+	--color-label: var(--color-slate-300);
+	--color-background-light: #f6f7f8;
+	--color-background-dark: #101922;
+}
+
+@utility container {
+	@apply mx-auto px-4;
+}
+
+@layer base {
+	body {
+		@apply bg-background-dark font-inter;
+	}
+
+	p {
+		@apply text-paragraph;
+	}
+
+	label {
+		@apply text-label;
+	}
+
+	input {
+		@apply text-white placeholder:text-paragraph bg-slate-700 rounded-lg px-4 py-3;
+	}
+
+	button {
+		@apply cursor-pointer;
+	}
+
+	a,
+	button {
+		@apply transition-opacity;
+	}
+
+	a:hover,
+	button:hover {
+		@apply opacity-90;
+	}
+}

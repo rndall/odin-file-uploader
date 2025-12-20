@@ -3,31 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/output.css">
     <title>Login</title>
   </head>
 
   <body>
-    <h1>please log in</h1>
-    <form action="/log-in" method="POST">
-      <label for="username">Username</label>
-      <input
-        id="username"
-        name="username"
-        placeholder="username"
-        value="<%= locals.user?.username %>"
-        type="text"
-        required
-      />
-      <%- include("partials/error", { field: "username" }) %>
-      <label for="password">Password</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        required
-      />
-      <%- include("partials/error", { field: "password" }) %>
-      <button type="submit">Log In</button>
-    </form>
+    <main class="py-6 container content-center min-h-dvh">      
+      <div class="bg-foreground text-center mx-auto rounded-lg shadow-sm p-8 max-w-md space-y-8">
+        <div class="space-y-3">
+          <h1 class="text-white font-black text-3xl">Welcome Back</h1>
+          <p>Log in to access your personal file storage.</p>
+        </div>
+        <form
+          class="space-y-5"
+          action="/log-in"
+          method="POST"
+        >
+          <div class="flex flex-col gap-1 text-start">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              value="<%= locals.user?.username %>"
+              type="text"
+              required
+            />
+            <%- include("partials/error", { field: "username" }) %>
+          </div>
+          <div class="flex flex-col gap-1 text-start">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              required
+            />
+            <%- include("partials/error", { field: "password" }) %>
+          </div>
+          <button
+            class="bg-primary text-white font-bold rounded-lg w-full p-3 mt-5"
+            type="submit"
+          >
+            Log In
+          </button>
+        </form>
+
+        <p>Don't have an account? <a class="hover:underline text-primary font-semibold" href="/sign-up">Create Account</a></p>
+      </div>
+    </main>
   </body>
 </html>

@@ -7,7 +7,8 @@
 		"dev": "node --watch --env-file=.env app.js",
 		"prisma:migrate": "prisma migrate dev --name",
 		"prisma:generate": "prisma generate",
-		"prisma:studio": "prisma studio --config ./prisma.config.js"
+		"prisma:studio": "prisma studio --config ./prisma.config.js",
+		"tw:dev": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch"
 	},
 	"keywords": [],
 	"author": "",
@@ -23,6 +24,7 @@
 		"@prisma/client-runtime-utils": "^7.1.0",
 		"@quixo3/prisma-session-store": "^3.1.13",
 		"@supabase/supabase-js": "^2.88.0",
+		"@tailwindcss/cli": "^4.1.18",
 		"bcrypt": "^6.0.0",
 		"dotenv": "^17.2.3",
 		"ejs": "^3.1.10",
@@ -32,7 +34,8 @@
 		"multer": "^2.0.2",
 		"passport": "^0.7.0",
 		"passport-local": "^1.0.0",
-		"pg": "^8.16.3"
+		"pg": "^8.16.3",
+		"tailwindcss": "^4.1.18"
 	},
 	"type": "module"
 }
