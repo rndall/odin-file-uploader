@@ -1,0 +1,59 @@
+import {
+	Cloud,
+	Download,
+	FileUp,
+	FolderPlus,
+	Info,
+	LogOut,
+	PencilLine,
+	Trash2,
+} from "lucide-static"
+import { addIconClasses } from "../utils/icons.js"
+
+export function setHeaderIcon(_req, res, next) {
+	const headerIcon = addIconClasses(Cloud, ["text-primary", "fill-primary"])
+	res.locals.headerIcon = headerIcon
+	next()
+}
+
+export function setNewFolderIcon(_req, res, next) {
+	const newFolderIcon = addIconClasses(FolderPlus, ["size-5"])
+	res.locals.newFolderIcon = newFolderIcon
+	next()
+}
+
+export function setUploadIcon(_req, res, next) {
+	const uploadIcon = addIconClasses(FileUp, ["text-paragraph"])
+	res.locals.uploadIcon = uploadIcon
+	next()
+}
+
+export function setLogoutIcon(_req, res, next) {
+	const logoutIcon = addIconClasses(LogOut, ["text-paragraph"])
+	res.locals.logoutIcon = logoutIcon
+	next()
+}
+
+export function setFileRowIcons(_req, res, next) {
+	const [detailsIcon, renameIcon, downloadIcon] = [
+		Info,
+		PencilLine,
+		Download,
+	].map((icon) =>
+		addIconClasses(icon, [
+			"text-paragraph",
+			"hover:text-primary",
+			"transition-[color,_opacity]",
+			"size-5",
+		]),
+	)
+	res.locals.detailsIcon = detailsIcon
+	res.locals.renameIcon = renameIcon
+	res.locals.downloadIcon = downloadIcon
+	res.locals.deleteIcon = addIconClasses(Trash2, [
+		"text-red-500",
+		"transition-opacity",
+		"size-5",
+	])
+	next()
+}

@@ -1,12 +1,13 @@
 <nav>
-  <ol>
-    <% breadcrumbs.forEach((crumb, i) => { %>
-      <% if (i !== 0) { %>
-        <p>></p>
-      <% } %>
-
-      <li>
+  <ol class="flex gap-2">
+    <% breadcrumbs.forEach((crumb, i) => {
+      const isLast = i === breadcrumbs.length - 1
+    %>
+      <li
+        class="text-paragraph flex gap-2 <%= !isLast ? "after:content-['/']" : "" %>"
+      >
         <a 
+          class="hover:underline <%= isLast ? "text-white font-medium" : "hover:text-primary transition-[color_,opacity]" %>"
           href="<%= crumb.url %>"
         >
           <%= crumb.name %>

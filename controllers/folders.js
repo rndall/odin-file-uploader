@@ -6,10 +6,17 @@ import { upload } from "../lib/multer.js"
 import { prisma } from "../lib/prisma.js"
 import supabase from "../lib/supabaseServer.js"
 
+import {
+	setFileRowIcons,
+	setNewFolderIcon,
+	setUploadIcon,
+} from "../middlewares/icons.js"
 import validateResult from "../middlewares/validate-result.js"
+
 import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
 import { formatDate, formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
+import { getFileTypeIcon } from "../utils/icons.js"
 import {
 	buildFilePath,
 	getFullFolderPath,
@@ -171,52 +178,60 @@ const renameFolderPost = [
 	},
 ]
 
-async function getFolderById(req, res, next) {
-	const { id } = req.params
+const getFolderById = [
+	setNewFolderIcon,
+	setUploadIcon,
+	setFileRowIcons,
+	async (req, res, next) => {
+		const { id } = req.params
 
-	const baseLink = `${req.originalUrl}/children`
-	const fileUploadFormAction = `/folders/${id}/files`
+		const baseLink = `${req.originalUrl}/children`
+		const fileUploadFormAction = `/folders/${id}/files`
 
-	try {
-		const folder = await prisma.folder.findUnique({
-			where: { id, ownerId: req.user.id },
-			select: {
-				id: true,
-				children: true,
-				files: true,
-			},
-		})
+		try {
+			const folder = await prisma.folder.findUnique({
+				where: { id, ownerId: req.user.id },
+				select: {
+					id: true,
+					children: true,
+					files: true,
+				},
+			})
 
-		if (!folder) {
-			throw new CustomNotFoundError("Folder not found!")
+			if (!folder) {
+				throw new CustomNotFoundError("Folder not found!")
+			}
+
+			const folders = folder.children.map((folder) => ({
+				id: folder.id,
+				name: folder.name,
+				dateModified: formatDateModified(folder.modifiedAt),
+				type: "folders",
+				icon: getFileTypeIcon(folder),
+			}))
+
+			const files = folder.files.map((file) => ({
+				id: file.id,
+				name: file.name,
+				size: formatBytes(file.size),
+				dateModified: formatDateModified(file.modifiedAt),
+				type: "files",
+				icon: getFileTypeIcon(file),
+			}))
+
+			const breadcrumbs = await buildBreadcrumbs(folder.id)
+
+			res.render("index", {
+				files: [...folders, ...files],
+				baseLink,
+				fileUploadFormAction,
+				breadcrumbs,
+			})
+		} catch (err) {
+			next(err)
 		}
-
-		const folders = folder.children.map(({ id, name, modifiedAt }) => ({
-			id,
-			name,
-			dateModified: formatDateModified(modifiedAt),
-		}))
-
-		const files = folder.files.map(({ id, name, size, modifiedAt }) => ({
-			id,
-			name,
-			size: formatBytes(size),
-			dateModified: formatDateModified(modifiedAt),
-		}))
-
-		const breadcrumbs = await buildBreadcrumbs(folder.id)
-
-		res.render("index", {
-			folders,
-			files,
-			baseLink,
-			fileUploadFormAction,
-			breadcrumbs,
-		})
-	} catch (err) {
-		next(err)
-	}
-}
+	},
+]
 
 async function getFolderDetailsById(req, res, next) {
 	const { id: folderId } = req.params

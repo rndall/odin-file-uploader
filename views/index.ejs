@@ -3,26 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/output.css">
     <title>Home</title>
   </head>
 
   <body>
     <% if (locals.currentUser) { %>
-      <h1>WELCOME BACK <%= currentUser.username %></h1>
-      <a href="<%= locals.baseLink ?? "/folders/new" %>">
-        New Folder
-      </a>
-      <%- include("partials/breadcrumbs", { breadcrumbs }) %>
-      <%- include("partials/upload") %>
-      <ul>
-        <% folders.forEach((file) => { %>
-          <%- include("files/file-row", { file, type: "folders" }) %>
-        <% }) %>
-        <% files.forEach((file) => { %>
-          <%- include("files/file-row", { file, type: "files" }) %>
-        <% }) %>
-      </ul> 
-      <a href="/log-out">LOG OUT</a>
+      <%- include("header") %>
+      <main class="container py-8 space-y-4">
+        <%- include("partials/breadcrumbs", { breadcrumbs }) %>
+        <div class="bg-foreground px-4 py-5 rounded-lg">
+          <a
+            class="inline-flex items-center gap-2 rounded-lg text-primary font-bold py-2 px-4 bg-primary/30" 
+            href="<%= locals.baseLink ?? "/folders/new" %>"
+          >
+            <%- newFolderIcon %> 
+            <span>New Folder</span>
+          </a>
+        </div>
+        <%- include("partials/upload") %>
+        <%- include("files/file-table", { files }) %>
+      </main>
     <% } else { %>
       <a href="/log-in">LOG IN</a>
       <a href="/sign-up">SIGN UP</a>

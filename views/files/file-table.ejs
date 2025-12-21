@@ -1,0 +1,69 @@
+<% if (files.length) { 
+  const headers = [
+    { text: "Name", classes: ["lg:w-100", "xl:w-150"] },
+    { text: "Date modified" },
+    { text: "File size" },
+    { text: "", classes: ["sm:w-18"] },
+  ]
+%>
+  <div class="w-full relative overflow-x-auto">
+    <table class="w-full rounded-lg bg-foreground">
+      <thead class="[&_tr]:border-b-2 [&_tr]:border-background-dark/80">
+        <tr class="hover:bg-background-dark/40 transition-colors text-white">
+          <% headers.forEach((header) => { %>
+            <th class="text-left px-4 h-10 py-2 <%= header.classes?.join(" ") %>">
+              <%= header.text %>
+            </th>
+          <% }) %>
+        </tr>
+      </thead>
+      <tbody class="[&_tr:last-child]:border-0 [&_tr]:border-background-dark/80 *:border-b">
+        <% files.forEach(({ id, icon, name, dateModified, size, type }) => { %>
+          <tr class="hover:bg-background-dark/40 transition-colors *:p-4 *:text-paragraph">
+            <td class="text-white! font-semibold">
+              <div class="flex items-center">
+                <a class="inline-flex gap-3" href="/<%= type %>/<%= id %>">
+                  <%- icon %>
+                  <%= name %>
+                </a>
+              </div>
+            </td>
+            <td><%= dateModified %></td>
+            <td><%= size ?? "—" %></td>
+            <td> 
+              <div class="flex items-center justify-end gap-3">
+                <a 
+                  href="/<%= type %>/<%= id %><%= type === "folders"
+                  ? "/details"
+                  : "" %>"
+                ><%- detailsIcon %></a>
+              
+                <a
+                  href="/<%= type %>/<%= id %>/rename"
+                ><%- renameIcon %></a>
+                
+                <% if (type === "files") { %> 
+                  <form
+                    class="flex place-items-center"
+                    action="/<%= type %>/<%= id %>/download"
+                    method="GET"
+                  >
+                    <button type="submit"><%- downloadIcon %></button>
+                  </form>
+                <% } %> 
+
+                <form
+                  class="flex place-items-center"
+                  action="/<%= type %>/<%= id %>/delete"
+                  method="POST"
+                >
+                  <button type="submit"><%- deleteIcon %></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>

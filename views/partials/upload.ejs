@@ -1,23 +1,90 @@
-<form 
+<form
+  class="space-y-3"
   action="<%= locals.fileUploadFormAction ?? "/files" %>"
   method="POST"
   enctype="multipart/form-data"
   id="uploadForm"
 >
-  <input type="file" name="file" id="file" required />
-  <noscript>
-    <button type="submit">Upload</button>
-  </noscript>
+  <div
+    class="flex flex-col gap-3 items-center p-7 bg-foreground border-2 border-gray-600 border-dashed rounded-lg"
+    id="dropZone"
+  >
+    <div class="rounded-full bg-background-dark/40 p-4">
+      <%- uploadIcon %>
+    </div>
+    <div class="text-center">
+      <p class="text-white font-semibold text-xl">Drag & drop to upload</p>
+      <p>
+        or
+        <label class="cursor-pointer text-primary font-medium hover:underline">
+          browse your files
+          <input class="hidden" type="file" id="file" name="file" required />
+        </label>
+      </p>
+    </div>
+  </div>
+  <div id="preview" class="hidden space-y-1">
+    <img class="rounded-lg max-w-xl mx-auto" id="fileImagePreview" />
+    <p class="break-all text-center" id="fileNamePreview"></p>
+  </div>
 </form>
 
 <script>
-  (function () {
+  ;(() => {
     const input = document.querySelector("#file")
-    
-    input.addEventListener("change", () => {
-      if (input.files.length > 0) {
-        document.querySelector("#uploadForm").submit()
+    const dropZone = document.querySelector("#dropZone")
+    const form = document.querySelector("#uploadForm")
+    const preview = document.querySelector("#preview")
+    const fileImagePreview = document.querySelector("#fileImagePreview")
+    const fileNamePreview = document.querySelector("#fileNamePreview")
+
+    function showImage(file) {
+      fileImagePreview.src = URL.createObjectURL(file)
+      fileImagePreview.alt = file.name
+    }
+
+    function showFileName(file) {
+      fileNamePreview.textContent = file.name
+    }
+
+    function setInputFile(singleFile) {
+      const dt = new DataTransfer()
+      dt.items.add(singleFile)
+      input.files = dt.files
+    }
+
+    function handleSubmit(file) {
+      preview.classList.remove("hidden")
+      if (file.type.startsWith("image/")) {
+        showImage(file)
       }
+
+      showFileName(file)
+      setInputFile(file)
+
+      form.submit()
+    }
+
+    dropZone.addEventListener("dragover", (e) => {
+      const fileItems = [...e.dataTransfer.items].filter(
+        (i) => i.kind === "file",
+      )
+      if (fileItems.length > 0) {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = "copy"
+      }
+    })
+
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault()
+      const files = [...e.dataTransfer.files]
+      if (files.length === 0) return
+      handleSubmit(files[0])
+    })
+
+    input.addEventListener("change", (e) => {
+      if (!e.target.files?.length === 0) return
+      handleSubmit(e.target.files[0])
     })
   })()
 </script>

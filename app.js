@@ -9,6 +9,7 @@ import configurePassport from "./config/passport.js"
 
 import currentUser from "./middlewares/current-user.js"
 import errorHandler from "./middlewares/error-handler.js"
+import { setHeaderIcon, setLogoutIcon } from "./middlewares/icons.js"
 import sessionMiddleware from "./middlewares/session.js"
 
 import authRouter from "./routes/auth.js"
@@ -33,6 +34,8 @@ app.use(urlencoded({ extended: false }))
 app.use(currentUser)
 
 app.use("/", authRouter)
+app.use(setHeaderIcon)
+app.use(setLogoutIcon)
 app.use("/", indexRouter)
 app.use("/files", filesRouter)
 app.use("/folders", foldersRouter)

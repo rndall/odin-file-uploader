@@ -1,58 +1,75 @@
 import { prisma } from "../lib/prisma.js"
 
+import {
+	setFileRowIcons,
+	setNewFolderIcon,
+	setUploadIcon,
+} from "../middlewares/icons.js"
+
 import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
 import { formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
+import { getFileTypeIcon } from "../utils/icons.js"
 
-async function getIndex(req, res, next) {
-	let folders = []
-	let files = []
-	let breadcrumbs = []
+const getIndex = [
+	setNewFolderIcon,
+	setUploadIcon,
+	setFileRowIcons,
+	async (req, res, next) => {
+		let folders = []
+		let files = []
+		let breadcrumbs = []
 
-	if (req.isAuthenticated()) {
-		const ownerId = req.user.id
+		if (req.isAuthenticated()) {
+			const ownerId = req.user.id
 
-		try {
-			const rootFolders = await prisma.folder.findMany({
-				where: {
-					AND: [{ ownerId }, { parentId: null }],
-				},
-				select: { id: true, name: true, modifiedAt: true },
-			})
+			try {
+				const rootFolders = await prisma.folder.findMany({
+					where: {
+						AND: [{ ownerId }, { parentId: null }],
+					},
+					select: { id: true, name: true, modifiedAt: true },
+				})
 
-			folders = rootFolders.map(({ id, name, modifiedAt }) => ({
-				id,
-				name,
-				dateModified: formatDateModified(modifiedAt),
-			}))
+				folders = rootFolders.map((folder) => ({
+					id: folder.id,
+					name: folder.name,
+					dateModified: formatDateModified(folder.modifiedAt),
+					type: "folders",
+					icon: getFileTypeIcon(folder),
+				}))
 
-			const rootFiles = await prisma.file.findMany({
-				where: {
-					AND: [{ ownerId }, { folderId: null }],
-				},
-				select: {
-					id: true,
-					name: true,
-					size: true,
-					modifiedAt: true,
-					owner: true,
-				},
-			})
+				const rootFiles = await prisma.file.findMany({
+					where: {
+						AND: [{ ownerId }, { folderId: null }],
+					},
+					select: {
+						id: true,
+						name: true,
+						size: true,
+						modifiedAt: true,
+						owner: true,
+						mimeType: true,
+					},
+				})
 
-			files = rootFiles.map(({ id, name, size, modifiedAt }) => ({
-				id,
-				name,
-				size: formatBytes(size),
-				dateModified: formatDateModified(modifiedAt),
-			}))
+				files = rootFiles.map((file) => ({
+					id: file.id,
+					name: file.name,
+					size: formatBytes(file.size),
+					dateModified: formatDateModified(file.modifiedAt),
+					type: "files",
+					icon: getFileTypeIcon(file),
+				}))
 
-			breadcrumbs = await buildBreadcrumbs(null)
-		} catch (err) {
-			return next(err)
+				breadcrumbs = await buildBreadcrumbs(null)
+			} catch (err) {
+				return next(err)
+			}
 		}
-	}
 
-	res.render("index", { folders, files, breadcrumbs })
-}
+		res.render("index", { files: [...folders, ...files], breadcrumbs })
+	},
+]
 
 export { getIndex }
