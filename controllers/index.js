@@ -16,59 +16,57 @@ const getIndex = [
 	setUploadIcon,
 	setFileRowIcons,
 	async (req, res, next) => {
-		let folders = []
-		let files = []
-		let breadcrumbs = []
-
-		if (req.isAuthenticated()) {
-			const ownerId = req.user.id
-
-			try {
-				const rootFolders = await prisma.folder.findMany({
-					where: {
-						AND: [{ ownerId }, { parentId: null }],
-					},
-					select: { id: true, name: true, modifiedAt: true },
-				})
-
-				folders = rootFolders.map((folder) => ({
-					id: folder.id,
-					name: folder.name,
-					dateModified: formatDateModified(folder.modifiedAt),
-					type: "folders",
-					icon: getFileTypeIcon(folder),
-				}))
-
-				const rootFiles = await prisma.file.findMany({
-					where: {
-						AND: [{ ownerId }, { folderId: null }],
-					},
-					select: {
-						id: true,
-						name: true,
-						size: true,
-						modifiedAt: true,
-						owner: true,
-						mimeType: true,
-					},
-				})
-
-				files = rootFiles.map((file) => ({
-					id: file.id,
-					name: file.name,
-					size: formatBytes(file.size),
-					dateModified: formatDateModified(file.modifiedAt),
-					type: "files",
-					icon: getFileTypeIcon(file),
-				}))
-
-				breadcrumbs = await buildBreadcrumbs(null)
-			} catch (err) {
-				return next(err)
-			}
+		if (!req.isAuthenticated()) {
+			res.redirect("/log-in")
 		}
 
-		res.render("index", { files: [...folders, ...files], breadcrumbs })
+		const ownerId = req.user.id
+
+		try {
+			const rootFolders = await prisma.folder.findMany({
+				where: {
+					AND: [{ ownerId }, { parentId: null }],
+				},
+				select: { id: true, name: true, modifiedAt: true },
+			})
+
+			const folders = rootFolders.map((folder) => ({
+				id: folder.id,
+				name: folder.name,
+				dateModified: formatDateModified(folder.modifiedAt),
+				type: "folders",
+				icon: getFileTypeIcon(folder),
+			}))
+
+			const rootFiles = await prisma.file.findMany({
+				where: {
+					AND: [{ ownerId }, { folderId: null }],
+				},
+				select: {
+					id: true,
+					name: true,
+					size: true,
+					modifiedAt: true,
+					owner: true,
+					mimeType: true,
+				},
+			})
+
+			const files = rootFiles.map((file) => ({
+				id: file.id,
+				name: file.name,
+				size: formatBytes(file.size),
+				dateModified: formatDateModified(file.modifiedAt),
+				type: "files",
+				icon: getFileTypeIcon(file),
+			}))
+
+			const breadcrumbs = await buildBreadcrumbs(null)
+
+			res.render("index", { files: [...folders, ...files], breadcrumbs })
+		} catch (err) {
+			next(err)
+		}
 	},
 ]
 
