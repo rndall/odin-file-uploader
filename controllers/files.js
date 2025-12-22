@@ -7,10 +7,14 @@ import { upload } from "../lib/multer.js"
 import { prisma } from "../lib/prisma.js"
 import supabase from "../lib/supabaseServer.js"
 
+import { setFileDetailsIcons } from "../middlewares/icons.js"
 import validateResult from "../middlewares/validate-result.js"
+
 import { formatDate } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
+import { getFileTypeIcon } from "../utils/icons.js"
 import { buildFilePath, redirectToFolder } from "../utils/paths.js"
+
 import { validateFileName } from "../validators/files.js"
 
 const createFilePost = [
@@ -43,52 +47,62 @@ const createFilePost = [
 	},
 ]
 
-async function getFileById(req, res, next) {
-	const { id: fileId } = req.params
+const getFileById = [
+	setFileDetailsIcons,
+	async (req, res, next) => {
+		const { id: fileId } = req.params
 
-	try {
-		const file = await prisma.file.findUnique({
-			where: { id: fileId, ownerId: req.user.id },
-			select: {
-				id: true,
-				name: true,
-				size: true,
-				mimeType: true,
-				owner: true,
-				folder: {
-					select: {
-						id: true,
-						name: true,
+		try {
+			const file = await prisma.file.findUnique({
+				where: { id: fileId, ownerId: req.user.id },
+				select: {
+					id: true,
+					name: true,
+					size: true,
+					mimeType: true,
+					owner: true,
+					folder: {
+						select: {
+							id: true,
+							name: true,
+						},
 					},
+					modifiedAt: true,
+					createdAt: true,
 				},
-				modifiedAt: true,
-				createdAt: true,
-			},
-		})
+			})
 
-		if (!file) {
-			throw new CustomNotFoundError("File not found!")
+			if (!file) {
+				throw new CustomNotFoundError("File not found!")
+			}
+
+			const { id, name, size, mimeType, owner, folder, modifiedAt, createdAt } =
+				file
+
+			const formattedFile = {
+				id,
+				name,
+				size: formatBytes(size),
+				mimeType,
+				owner,
+				folder,
+				createdAt: formatDate(createdAt),
+				modifiedAt: formatDate(modifiedAt),
+				icon: getFileTypeIcon(file),
+			}
+
+			const backHref = folder?.id ? `/folders/${folder.id}` : "/"
+
+			res.render("files/file", {
+				file: formattedFile,
+				type: "files",
+				backHref,
+			})
+		} catch (err) {
+			next(err)
 		}
-
-		const { id, name, size, mimeType, owner, folder, modifiedAt, createdAt } =
-			file
-
-		const formattedFile = {
-			id,
-			name,
-			size: formatBytes(size),
-			mimeType,
-			owner,
-			folder,
-			createdAt: formatDate(createdAt),
-			modifiedAt: formatDate(modifiedAt),
-		}
-
-		res.render("files/file", { file: formattedFile, type: "files" })
-	} catch (err) {
-		next(err)
-	}
-}
+	},
+]
 
 async function downloadFile(req, res, next) {
 	const { id } = req.params

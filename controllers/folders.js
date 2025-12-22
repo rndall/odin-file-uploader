@@ -7,6 +7,7 @@ import { prisma } from "../lib/prisma.js"
 import supabase from "../lib/supabaseServer.js"
 
 import {
+	setFileDetailsIcons,
 	setFileRowIcons,
 	setNewFolderIcon,
 	setUploadIcon,
@@ -233,40 +234,50 @@ const getFolderById = [
 	},
 ]
 
-async function getFolderDetailsById(req, res, next) {
-	const { id: folderId } = req.params
+const getFolderDetailsById = [
+	setFileDetailsIcons,
+	async (req, res, next) => {
+		const { id: folderId } = req.params
 
-	try {
-		const folder = await prisma.folder.findUnique({
-			where: { id: folderId, ownerId: req.user.id },
-			select: {
-				id: true,
-				name: true,
-				modifiedAt: true,
-				createdAt: true,
-				parent: { select: { id: true, name: true } },
-			},
-		})
+		try {
+			const folder = await prisma.folder.findUnique({
+				where: { id: folderId, ownerId: req.user.id },
+				select: {
+					id: true,
+					name: true,
+					modifiedAt: true,
+					createdAt: true,
+					parent: { select: { id: true, name: true } },
+				},
+			})
 
-		if (!folder) {
-			throw new CustomNotFoundError("Folder not found!")
+			if (!folder) {
+				throw new CustomNotFoundError("Folder not found!")
+			}
+
+			const { id, name, parent, modifiedAt, createdAt } = folder
+
+			const formattedFolder = {
+				id,
+				name,
+				folder: parent,
+				modifiedAt: formatDate(modifiedAt),
+				createdAt: formatDate(createdAt),
+				icon: getFileTypeIcon(folder),
+			}
+
+			const backHref = parent ? `/folders/${parent.id}` : "/"
+
+			res.render("files/file", {
+				file: formattedFolder,
+				type: "folders",
+				backHref,
+			})
+		} catch (err) {
+			next(err)
 		}
-
-		const { id, name, parent, modifiedAt, createdAt } = folder
-
-		const formattedFolder = {
-			id,
-			name,
-			folder: parent,
-			modifiedAt: formatDate(modifiedAt),
-			createdAt: formatDate(createdAt),
-		}
-
-		res.render("files/file", { file: formattedFolder, type: "folders" })
-	} catch (err) {
-		next(err)
-	}
-}
+	},
+]
 
 async function createChildFolderGet(req, res) {
 	const { id } = req.params

@@ -7,6 +7,7 @@ import {
 	LogOut,
 	PencilLine,
 	Trash2,
+	X,
 } from "lucide-static"
 import { addIconClasses } from "../utils/icons.js"
 
@@ -55,5 +56,15 @@ export function setFileRowIcons(_req, res, next) {
 		"transition-opacity",
 		"size-5",
 	])
+	next()
+}
+
+export function setFileDetailsIcons(_req, res, next) {
+	const [renameIcon, downloadIcon, xIcon] = [PencilLine, Download, X].map(
+		(icon) => addIconClasses(icon, ["transition-opacity", "size-5"]),
+	)
+	res.locals.renameIcon = renameIcon
+	res.locals.downloadIcon = downloadIcon
+	res.locals.xIcon = xIcon
 	next()
 }
