@@ -3,28 +3,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/output.css">
     <title><%= title %></title>
   </head>
 
   <body>
-    <h1><%= heading %></h1>
-    <form action="<%= locals.action %>" method="POST">
-      <input
-        id="name"
-        name="name"
-        value="<%= defaultValue %>"
-        type="text"
-        autofocus
-        required
-      />
-      <%- include("partials/error", { field: "name" }) %>
-      <a id="cancel" href="/"> 
-        Cancel
-      </a>
-      <button type="submit">
-        <%= submitBtn %>
-      </button>
-    </form>
+    <main class="py-6 min-h-dvh container content-center">
+      <div class="mx-auto max-w-md bg-foreground p-6 rounded-lg shadow-sm">
+        <form
+          class="flex flex-col gap-3"
+          action="<%= locals.action %>"
+          method="POST"
+        >
+          <label
+            for="name"
+            class="text-white font-bold text-xl"
+          >
+            <%= heading %>
+          </label>
+          <input
+            id="name"
+            name="name"
+            value="<%= defaultValue %>"
+            type="text"
+            autofocus
+            required
+          />
+          <%- include("partials/error", { field: "name" }) %>
+          <div class="text-white font-bold justify-end flex gap-4 items-center mt-5">
+            <a class="bg-gray-700 py-2.5 px-5 rounded-lg" id="cancel" href="/"> 
+              Cancel
+            </a>
+            <button class="bg-primary py-2.5 px-5 rounded-lg" type="submit">
+              <%= submitBtn %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
   </body>
   
   <script>
