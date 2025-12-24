@@ -165,14 +165,14 @@ const renameFolderPost = [
 			const updatedFolder = await prisma.folder.update({
 				where: { id, ownerId },
 				data: { name },
-				select: { parentId: true },
+				select: { id: true },
 			})
 
 			if (!updatedFolder) {
 				throw new CustomNotFoundError("Folder not found!")
 			}
 
-			redirectToFolder(res, updatedFolder.parentId)
+			redirectToFolder(res, updatedFolder.id)
 		} catch (err) {
 			next(err)
 		}
@@ -186,7 +186,7 @@ const getFolderById = [
 	async (req, res, next) => {
 		const { id } = req.params
 
-		const baseLink = `${req.originalUrl}/children`
+		const baseLink = req.originalUrl
 		const fileUploadFormAction = `/folders/${id}/files`
 
 		try {
