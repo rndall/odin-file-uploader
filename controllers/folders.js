@@ -15,7 +15,11 @@ import {
 import validateResult from "../middlewares/validate-result.js"
 
 import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
-import { formatDate, formatDateModified } from "../utils/date-formatter.js"
+import {
+	formatDate,
+	formatDateModified,
+	formatToNow,
+} from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { getFileTypeIcon } from "../utils/icons.js"
 import {
@@ -23,6 +27,7 @@ import {
 	getFullFolderPath,
 	redirectToFolder,
 } from "../utils/paths.js"
+
 import { validateFolderName } from "../validators/folders.js"
 
 async function createFolderGet(_req, res) {
@@ -186,6 +191,7 @@ const getFolderById = [
 	async (req, res, next) => {
 		const { id } = req.params
 		const layout = req.cookies?.layout ?? "list"
+		const dateFormatter = layout === "list" ? formatDateModified : formatToNow
 
 		const baseLink = req.originalUrl
 		const fileUploadFormAction = `/folders/${id}/files`
@@ -207,7 +213,7 @@ const getFolderById = [
 			const folders = folder.children.map((folder) => ({
 				id: folder.id,
 				name: folder.name,
-				dateModified: formatDateModified(folder.modifiedAt),
+				dateModified: dateFormatter(folder.modifiedAt),
 				type: "folders",
 				icon: getFileTypeIcon(folder),
 			}))
@@ -216,7 +222,7 @@ const getFolderById = [
 				id: file.id,
 				name: file.name,
 				size: formatBytes(file.size),
-				dateModified: formatDateModified(file.modifiedAt),
+				dateModified: dateFormatter(file.modifiedAt),
 				type: "files",
 				icon: getFileTypeIcon(file),
 			}))

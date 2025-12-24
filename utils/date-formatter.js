@@ -1,34 +1,26 @@
-function formatDateModified(modifiedAt) {
-	const date = new Date(modifiedAt)
-	const now = new Date()
+import {
+	format,
+	formatDistanceToNowStrict,
+	isThisYear,
+	isToday,
+	isYesterday,
+} from "date-fns"
 
-	let options = {}
-	const showTime = date.toDateString() === now.toDateString()
-
-	if (showTime) {
-		options = {
-			hour: "numeric",
-			minute: "2-digit",
-			hour12: true,
-		}
+function formatDateModified(date) {
+	if (isToday(date)) {
+		return format(date, "h:mm a")
 	} else {
-		const showYear = date.getFullYear() !== now.getFullYear()
-		options = { month: "short", day: "numeric" }
-		if (showYear) options.year = "numeric"
+		return isThisYear(date) ? format(date, "MMM d") : formatDate(date)
 	}
-
-	const formatter = new Intl.DateTimeFormat("en-US", options)
-	return formatter.format(modifiedAt)
 }
 
-function formatDate(isoString) {
-	const formatter = new Intl.DateTimeFormat("en-US", {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-	})
-
-	return formatter.format(isoString)
+function formatDate(date) {
+	return format(date, "MMM d, yyyy")
 }
 
-export { formatDateModified, formatDate }
+function formatToNow(date) {
+	if (isYesterday(date)) return "yesterday"
+	return formatDistanceToNowStrict(date, { addSuffix: true })
+}
+
+export { formatDateModified, formatDate, formatToNow }

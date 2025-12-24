@@ -9,7 +9,7 @@ import {
 import validateResult from "../middlewares/validate-result.js"
 
 import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
-import { formatDateModified } from "../utils/date-formatter.js"
+import { formatDateModified, formatToNow } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { getFileTypeIcon } from "../utils/icons.js"
 
@@ -26,6 +26,7 @@ const getIndex = [
 
 		const ownerId = req.user.id
 		const layout = req.cookies?.layout ?? "list"
+		const dateFormatter = layout === "list" ? formatDateModified : formatToNow
 
 		try {
 			const rootFolders = await prisma.folder.findMany({
@@ -38,7 +39,7 @@ const getIndex = [
 			const folders = rootFolders.map((folder) => ({
 				id: folder.id,
 				name: folder.name,
-				dateModified: formatDateModified(folder.modifiedAt),
+				dateModified: dateFormatter(folder.modifiedAt),
 				type: "folders",
 				icon: getFileTypeIcon(folder),
 			}))
@@ -61,7 +62,7 @@ const getIndex = [
 				id: file.id,
 				name: file.name,
 				size: formatBytes(file.size),
-				dateModified: formatDateModified(file.modifiedAt),
+				dateModified: dateFormatter(file.modifiedAt),
 				type: "files",
 				icon: getFileTypeIcon(file),
 			}))
