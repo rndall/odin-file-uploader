@@ -4,10 +4,14 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
+		"start": "node app.js",
 		"dev": "node --watch --env-file=.env app.js",
+		"build": "prisma generate && tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify",
+
 		"prisma:migrate": "prisma migrate dev --name",
 		"prisma:generate": "prisma generate",
 		"prisma:studio": "prisma studio --config ./prisma.config.js",
+
 		"tw:dev": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch"
 	},
 	"keywords": [],
