@@ -1,69 +1,130 @@
-<% if (files.length) { 
-  const headers = [
-    { text: "Name", classes: ["lg:w-100", "xl:w-150"] },
-    { text: "Date modified" },
-    { text: "File size" },
-    { text: "", classes: ["sm:w-18"] },
-  ]
-%>
-  <div class="w-full relative overflow-x-auto">
-    <table class="w-full rounded-lg bg-foreground">
-      <thead class="[&_tr]:border-b-2 [&_tr]:border-background-dark/80">
-        <tr class="hover:bg-background-dark/40 transition-colors text-white">
-          <% headers.forEach((header) => { %>
-            <th class="text-left px-4 h-10 py-2 <%= header.classes?.join(" ") %>">
-              <%= header.text %>
-            </th>
-          <% }) %>
-        </tr>
-      </thead>
-      <tbody class="[&_tr:last-child]:border-0 [&_tr]:border-background-dark/80 *:border-b">
-        <% files.forEach(({ id, icon, name, dateModified, size, type }) => { %>
-          <tr class="hover:bg-background-dark/40 transition-colors *:p-4 *:text-paragraph">
-            <td class="text-white! font-semibold">
-              <div class="flex items-center">
-                <a class="inline-flex gap-3" href="/<%= type %>/<%= id %>">
-                  <%- icon %>
-                  <%= name %>
-                </a>
-              </div>
-            </td>
-            <td><%= dateModified %></td>
-            <td><%= size ?? "—" %></td>
-            <td> 
-              <div class="flex items-center justify-end gap-3">
-                <a 
-                  href="/<%= type %>/<%= id %><%= type === "folders"
-                  ? "/details"
-                  : "" %>"
-                ><%- detailsIcon %></a>
-              
-                <a
-                  href="/<%= type %>/<%= id %>/rename"
-                ><%- renameIcon %></a>
+<% if (files.length) { %>
+  <% if (layout === "list") {
+    const headers = [
+      { text: "Name", classes: ["lg:w-100", "xl:w-150"] },
+      { text: "Date modified" },
+      { text: "File size" },
+      { text: "", classes: ["sm:w-18"] },
+    ]
+  %>
+    <div class="w-full relative overflow-x-auto">
+      <table class="w-full rounded-lg bg-foreground">
+        <thead class="[&_tr]:border-b-2 [&_tr]:border-background-dark/80">
+          <tr class="hover:bg-background-dark/40 transition-colors text-white">
+            <% headers.forEach((header) => { %>
+              <th class="text-left px-4 h-10 py-2 <%= header.classes?.join(" ") %>">
+                <%= header.text %>
+              </th>
+            <% }) %>
+          </tr>
+        </thead>
+        <tbody class="[&_tr:last-child]:border-0 [&_tr]:border-background-dark/80 *:border-b">
+          <% files.forEach(({ id, icon, name, dateModified, size, type }) => { %>
+            <tr
+              class="hover:bg-background-dark/40 transition-colors *:p-4 *:text-paragraph cursor-pointer"
+              data-href="/<%= type %>/<%= id %>"
+              role="link"
+            >
+              <td class="text-white! font-semibold">
+                <div class="flex items-center gap-3"><%- icon %><%= name %></div>
+              </td>
+              <td><%= dateModified %></td>
+              <td><%= size ?? "—" %></td>
+              <td> 
+                <div class="flex items-center justify-end gap-3">
+                  <a 
+                    href="/<%= type %>/<%= id %><%= type === "folders"
+                    ? "/details"
+                    : "" %>"
+                  ><%- detailsIcon %></a>
                 
-                <% if (type === "files") { %> 
+                  <a
+                    href="/<%= type %>/<%= id %>/rename"
+                  ><%- renameIcon %></a>
+                  
+                  <% if (type === "files") { %> 
+                    <form
+                      class="flex place-items-center"
+                      action="/<%= type %>/<%= id %>/download"
+                      method="GET"
+                    >
+                      <button type="submit"><%- downloadIcon %></button>
+                    </form>
+                  <% } %> 
+
                   <form
                     class="flex place-items-center"
-                    action="/<%= type %>/<%= id %>/download"
-                    method="GET"
+                    action="/<%= type %>/<%= id %>/delete"
+                    method="POST"
                   >
-                    <button type="submit"><%- downloadIcon %></button>
+                    <button type="submit"><%- deleteIcon %></button>
                   </form>
-                <% } %> 
-
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else if (layout === "grid") { %>
+    <div class="grid grid-cols-[repeat(auto-fill,_minmax(225px,_1fr))] gap-6">
+      <% files.forEach(({ id, icon, name, dateModified, type }) => { %>
+        <div
+          class="bg-foreground hover:bg-foreground/85 rounded-lg p-5 transition-opacity space-y-3 cursor-pointer group"
+          data-href="/<%= type %>/<%= id %>"
+          role="link"
+        >
+          <div class="flex items-center justify-between">
+            <%- icon %>
+            <div class="flex gap-2 transition-opacity opacity-0 group-hover:opacity-100">
+              <a
+                href="/<%= type %>/<%= id %><%= type === "folders"
+                  ? "/details"
+                  : "" %>"
+              ><%- detailsIcon %></a>
+              <a href="/<%= type %>/<%= id %>/rename"><%- renameIcon %></a>
+              <% if (type === "files") { %> 
                 <form
                   class="flex place-items-center"
-                  action="/<%= type %>/<%= id %>/delete"
-                  method="POST"
+                  action="/<%= type %>/<%= id %>/download"
+                  method="GET"
                 >
-                  <button type="submit"><%- deleteIcon %></button>
+                  <button type="submit"><%- downloadIcon %></button>
                 </form>
-              </div>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </div>
+              <% } %> 
+              <form
+                class="flex place-items-center"
+                action="/<%= type %>/<%= id %>/delete"
+                method="POST"
+              >
+                <button type="submit"><%- deleteIcon %></button>
+              </form>
+            </div>
+          </div>
+          <div>
+            <p class="font-medium text-white truncate"><%= name %></p>
+            <p class="text-sm">Modified <%= dateModified %></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+  <script>
+    document.addEventListener("click", (e) => {
+      const actionEl = e.target.closest("a, button, form")
+      if (actionEl) return
+      const item = e.target.closest("[data-href]")
+      if (item?.dataset.href) window.location.href = item.dataset.href
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        const focused = document.activeElement
+        if (focused?.classList.contains("card") && focused.dataset.href) {
+          e.preventDefault()
+          focused.click()
+        }
+      }
+    })
+  </script>    
 <% } %>

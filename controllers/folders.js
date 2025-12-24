@@ -9,7 +9,7 @@ import supabase from "../lib/supabaseServer.js"
 import {
 	setFileDetailsIcons,
 	setFileRowIcons,
-	setNewFolderIcon,
+	setIndexHeaderIcons,
 	setUploadIcon,
 } from "../middlewares/icons.js"
 import validateResult from "../middlewares/validate-result.js"
@@ -180,11 +180,12 @@ const renameFolderPost = [
 ]
 
 const getFolderById = [
-	setNewFolderIcon,
+	setIndexHeaderIcons,
 	setUploadIcon,
 	setFileRowIcons,
 	async (req, res, next) => {
 		const { id } = req.params
+		const layout = req.cookies?.layout ?? "list"
 
 		const baseLink = req.originalUrl
 		const fileUploadFormAction = `/folders/${id}/files`
@@ -227,6 +228,7 @@ const getFolderById = [
 				baseLink,
 				fileUploadFormAction,
 				breadcrumbs,
+				layout,
 			})
 		} catch (err) {
 			next(err)

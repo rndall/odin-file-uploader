@@ -4,6 +4,8 @@ import {
 	FileUp,
 	FolderPlus,
 	Info,
+	LayoutGrid,
+	List,
 	LogOut,
 	PencilLine,
 	Trash2,
@@ -17,9 +19,14 @@ export function setHeaderIcon(_req, res, next) {
 	next()
 }
 
-export function setNewFolderIcon(_req, res, next) {
+export function setIndexHeaderIcons(_req, res, next) {
 	const newFolderIcon = addIconClasses(FolderPlus, ["size-5"])
+	const [listIcon, gridIcon] = [List, LayoutGrid].map((icon) =>
+		addIconClasses(icon, ["text-paragraph", "transition"]),
+	)
 	res.locals.newFolderIcon = newFolderIcon
+	res.locals.listIcon = listIcon
+	res.locals.gridIcon = gridIcon
 	next()
 }
 

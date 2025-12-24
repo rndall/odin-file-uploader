@@ -1,18 +1,22 @@
+import { matchedData } from "express-validator"
 import { prisma } from "../lib/prisma.js"
 
 import {
 	setFileRowIcons,
-	setNewFolderIcon,
+	setIndexHeaderIcons,
 	setUploadIcon,
 } from "../middlewares/icons.js"
+import validateResult from "../middlewares/validate-result.js"
 
 import buildBreadcrumbs from "../utils/build-breadcrumbs.js"
 import { formatDateModified } from "../utils/date-formatter.js"
 import formatBytes from "../utils/format-bytes.js"
 import { getFileTypeIcon } from "../utils/icons.js"
 
+import { validateLayout } from "../validators/index.js"
+
 const getIndex = [
-	setNewFolderIcon,
+	setIndexHeaderIcons,
 	setUploadIcon,
 	setFileRowIcons,
 	async (req, res, next) => {
@@ -21,6 +25,7 @@ const getIndex = [
 		}
 
 		const ownerId = req.user.id
+		const layout = req.cookies?.layout ?? "list"
 
 		try {
 			const rootFolders = await prisma.folder.findMany({
@@ -63,11 +68,30 @@ const getIndex = [
 
 			const breadcrumbs = await buildBreadcrumbs(null)
 
-			res.render("index", { files: [...folders, ...files], breadcrumbs })
+			res.render("index", {
+				files: [...folders, ...files],
+				breadcrumbs,
+				layout,
+			})
 		} catch (err) {
 			next(err)
 		}
 	},
 ]
 
-export { getIndex }
+const setLayout = [
+	validateLayout,
+	validateResult,
+	async (req, res) => {
+		if (req.errors) {
+			return res.render("partials/errors", { errors: req.errors })
+		}
+
+		const { layout } = matchedData(req)
+		const { url } = req.body
+		res.cookie("layout", layout)
+		res.redirect(url)
+	},
+]
+
+export { getIndex, setLayout }

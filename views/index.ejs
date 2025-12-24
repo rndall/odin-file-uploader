@@ -12,30 +12,45 @@
       <%- include("header") %>
       <main class="container py-8 space-y-4">
         <%- include("partials/breadcrumbs", { breadcrumbs }) %>
-        <div class="bg-foreground px-4 py-5 rounded-lg flex items-center gap-4">
-          <a
-            class="flex items-center gap-2 rounded-lg text-primary font-bold py-2 px-4 bg-primary/30" 
-            href="<%= locals.baseLink ? `${baseLink}/children` : "/folders/new" %>"
-          >
-            <%- newFolderIcon %> 
-            <span>New Folder</span>
-          </a>
-          <% if (locals.baseLink) { %>
-            <form
-              class="flex place-items-center"
-              action="<%= baseLink %>/delete"
-              method="POST"
+        <div class="bg-foreground px-4 py-5 rounded-lg flex justify-between">
+          <div class="flex gap-4 items-center">
+            <a
+              class="flex items-center gap-2 rounded-lg text-primary font-bold py-2 px-4 bg-primary/30" 
+              href="<%= locals.baseLink ? `${baseLink}/children` : "/folders/new" %>"
             >
-              <button type="submit"><%- deleteIcon %></button>
-            </form>
-
-            <a href="<%= baseLink %>/rename">
-              <%- renameIcon %>
+              <%- newFolderIcon %> 
+              <span>New Folder</span>
             </a>
-          <% } %>
+            <% if (locals.baseLink) { %>
+              <form
+                class="flex place-items-center"
+                action="<%= baseLink %>/delete"
+                method="POST"
+              >
+                <button type="submit"><%- deleteIcon %></button>
+              </form>
+
+              <a href="<%= baseLink %>/rename">
+                <%- renameIcon %>
+              </a>
+            <% } %>
+          </div>
+          <form
+            class="flex items-center gap-5 mr-3"
+            action="/layout"
+            method="POST"
+          >
+            <input class="hidden" name="url" value="<%= locals.baseLink ?? "/" %>" type="text" />
+            <button type="submit" name="layout" value="list">
+              <%- listIcon %>
+            </button>
+            <button type="submit" name="layout" value="grid">
+              <%- gridIcon %>
+            </button>
+          </form>
         </div>
         <%- include("partials/upload") %>
-        <%- include("files/file-table", { files }) %>
+        <%- include("files/file-table", { files, layout }) %>
       </main>
     <% } %>
   </body>

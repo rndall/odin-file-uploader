@@ -1,9 +1,10 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
+import cookieParser from "cookie-parser"
 import express, { static as static_, urlencoded } from "express"
-
 import passport from "passport"
+
 import { PORT } from "./config/config.js"
 import configurePassport from "./config/passport.js"
 
@@ -30,6 +31,7 @@ app.use(sessionMiddleware)
 configurePassport()
 app.use(passport.session())
 app.use(urlencoded({ extended: false }))
+app.use(cookieParser())
 
 app.use(currentUser)
 
