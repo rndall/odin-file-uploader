@@ -21,7 +21,7 @@ const getIndex = [
 	setFileRowIcons,
 	async (req, res, next) => {
 		if (!req.isAuthenticated()) {
-			res.redirect("/log-in")
+			return res.redirect("/log-in")
 		}
 
 		const ownerId = req.user.id
